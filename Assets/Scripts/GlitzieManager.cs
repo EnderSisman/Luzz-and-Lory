@@ -18,7 +18,7 @@ public class GlitzieManager : MonoBehaviour
     private int smaragdCount;
     private int diamantCount;
 
-    // Wird intern gezählt, aber nicht im Gameplay angezeigt
+    // Wird intern berechnet, aber nicht im Gameplay angezeigt
     private int score;
 
     private void Awake()
@@ -66,23 +66,48 @@ public class GlitzieManager : MonoBehaviour
     private void UpdateUI()
     {
         if (goldText)
-            goldText.text = "x" + goldCount;
+            goldText.text = goldCount.ToString();
 
         if (rubinText)
-            rubinText.text = "x" + rubinCount;
+            rubinText.text = rubinCount.ToString();
 
         if (saphirText)
-            saphirText.text = "x" + saphirCount;
+            saphirText.text = saphirCount.ToString();
 
         if (smaragdText)
-            smaragdText.text = "x" + smaragdCount;
+            smaragdText.text = smaragdCount.ToString();
 
         if (diamantText)
-            diamantText.text = "x" + diamantCount;
+            diamantText.text = diamantCount.ToString();
     }
 
     public int GetScore()
     {
         return score;
+    }
+
+    public int GetGoldCount()
+    {
+        return goldCount;
+    }
+
+    public int GetRubinCount()
+    {
+        return rubinCount;
+    }
+
+    public int GetSaphirCount()
+    {
+        return saphirCount;
+    }
+
+    public int GetSmaragdCount()
+    {
+        return smaragdCount;
+    }
+
+    public int GetDiamantCount()
+    {
+        return diamantCount;
     }
 }
