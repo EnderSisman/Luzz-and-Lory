@@ -22,7 +22,7 @@ public class LuzzThrow : MonoBehaviour
     [SerializeField] private float catchPauseDuration = 0.12f;
 
     [Header("Return")]
-    [SerializeField] private float returnStartSpeed = 4f;
+    [SerializeField] private float returnStartSpeed = 2f;
     [SerializeField] private float returnSpeed = 22f;
     [SerializeField] private float returnAcceleration = 35f;
 
@@ -30,11 +30,21 @@ public class LuzzThrow : MonoBehaviour
     [SerializeField] private float spinSpeed = 720f;
     [SerializeField] private Vector3 spinAxis = Vector3.up;
 
+    [Header("World Collision")]
+    [SerializeField] private LayerMask worldLayer;
+    [SerializeField] private float collisionRadius = 0.25f;
+
+    [Header("Bounce")]
+    [SerializeField] private float bounceDistance = 1f;
+    [SerializeField] private float bounceStartSpeed = 14f;
+    [SerializeField] private float bounceEndSpeed = 1.5f;
+
     private enum LuzzState
     {
         Sitting,
         Flying,
         CatchPause,
+        Bouncing,
         Returning
     }
 
@@ -42,6 +52,9 @@ public class LuzzThrow : MonoBehaviour
 
     private Vector3 targetPosition;
     private Vector3 throwStartPosition;
+
+    private Vector3 bounceStartPosition;
+    private Vector3 bounceTarget;
 
     private float throwProgress;
     private float currentReturnSpeed;
@@ -65,6 +78,10 @@ public class LuzzThrow : MonoBehaviour
                 CatchPause();
                 break;
 
+            case LuzzState.Bouncing:
+                Bounce();
+                break;
+
             case LuzzState.Returning:
                 ReturnToLory();
                 break;
@@ -84,12 +101,21 @@ public class LuzzThrow : MonoBehaviour
 
     private void ThrowLuzz()
     {
-        Vector2 crosshairScreenPosition = RectTransformUtility.WorldToScreenPoint(null, crosshair.position);    // Position des Crosshairs auf dem Bildschirm
-        Ray aimRay = mainCamera.ScreenPointToRay(crosshairScreenPosition);                                       // Ray durch das Crosshair
-        targetPosition = aimRay.GetPoint(throwDistance);                                                            // Zielpunkt bestimmen                                                            
-        throwStartPosition = transform.position;                                                                    // Startposition speichern                                                                
-        throwProgress = 0f;                                                                                         // Fortschritt zurücksetzen
-        transform.SetParent(null, true);                                                             // Luzz von Lory lösen
+        Vector2 crosshairScreenPosition = RectTransformUtility.WorldToScreenPoint(null, crosshair.position);       // Position des Crosshairs auf dem Bildschirm
+        Ray aimRay = mainCamera.ScreenPointToRay(crosshairScreenPosition);                                          // Ray durch das Crosshair
+
+        
+        targetPosition = aimRay.GetPoint(throwDistance);                                                               // Zielposition bestimmen                                                             
+
+        // Startposition speichern
+        throwStartPosition = transform.position;
+
+        // Wurffortschritt zurücksetzen
+        throwProgress = 0f;
+
+        // Luzz von Lory lösen
+        transform.SetParent(null, true);
+
         state = LuzzState.Flying;
     }
 
@@ -114,25 +140,59 @@ public class LuzzThrow : MonoBehaviour
         // Fortschritt erhöhen
         if (totalDistance > 0f)
         {
-            throwProgress += (currentSpeed / totalDistance) * Time.deltaTime;
+            throwProgress +=
+                (currentSpeed / totalDistance)
+                * Time.deltaTime;
         }
 
-        throwProgress = Mathf.Clamp01(throwProgress);
+        throwProgress =
+            Mathf.Clamp01(throwProgress);
 
         // Grundbewegung Richtung Ziel
         Vector3 position = Vector3.Lerp(throwStartPosition, targetPosition, throwProgress);
 
         // Leichte Flugkurve
         float arc = Mathf.Sin(throwProgress * Mathf.PI) * arcHeight;
+
         position += Vector3.up * arc;
+
+        // Bewegung dieses Frames
+        Vector3 movement = position - transform.position;
+
+        // World-Kollision prüfen
+        if (movement.sqrMagnitude > 0f)
+        {
+            if (Physics.SphereCast(transform.position, collisionRadius, movement.normalized, out RaycastHit hit, movement.magnitude, worldLayer, QueryTriggerInteraction.Ignore))
+            {
+                // Luzz direkt vor die Oberfläche setzen
+                transform.position = hit.point + hit.normal * collisionRadius;
+
+                // Bounce beginnt hier
+                bounceStartPosition = transform.position;
+
+                // Ziel des Rückpralls
+                bounceTarget = transform.position + hit.normal * bounceDistance;
+
+                state = LuzzState.Bouncing;
+
+                return;
+            }
+        }
+
+        // Keine Kollision
         transform.position = position;
 
-        // Ziel erreicht
+        // Fangziel erreicht
         if (throwProgress >= 1f)
         {
-            transform.position = targetPosition;
-            catchPauseTimer = catchPauseDuration;
-            state = LuzzState.CatchPause;
+            transform.position =
+                targetPosition;
+
+            catchPauseTimer =
+                catchPauseDuration;
+
+            state =
+                LuzzState.CatchPause;
         }
     }
 
@@ -144,9 +204,69 @@ public class LuzzThrow : MonoBehaviour
 
         if (catchPauseTimer <= 0f)
         {
-            currentReturnSpeed = returnStartSpeed;
+            currentReturnSpeed =
+                returnStartSpeed;
 
-            state = LuzzState.Returning;
+            state =
+                LuzzState.Returning;
+        }
+    }
+
+    private void Bounce()
+    {
+        SpinLuzz();
+
+        float totalBounceDistance =
+            Vector3.Distance(
+                bounceStartPosition,
+                bounceTarget
+            );
+
+        float travelledBounceDistance =
+            Vector3.Distance(
+                bounceStartPosition,
+                transform.position
+            );
+
+        float bounceProgress = 0f;
+
+        if (totalBounceDistance > 0f)
+        {
+            bounceProgress =
+                Mathf.Clamp01(
+                    travelledBounceDistance
+                    / totalBounceDistance
+                );
+        }
+
+        // Beim Aufprall schnell,
+        // danach zunehmend langsamer
+        float currentBounceSpeed =
+            Mathf.Lerp(
+                bounceStartSpeed,
+                bounceEndSpeed,
+                bounceProgress
+            );
+
+        transform.position =
+            Vector3.MoveTowards(
+                transform.position,
+                bounceTarget,
+                currentBounceSpeed
+                * Time.deltaTime
+            );
+
+        // Bounce abgeschlossen
+        if (Vector3.Distance(
+            transform.position,
+            bounceTarget
+        ) < 0.05f)
+        {
+            currentReturnSpeed =
+                returnStartSpeed;
+
+            state =
+                LuzzState.Returning;
         }
     }
 
@@ -155,15 +275,32 @@ public class LuzzThrow : MonoBehaviour
         SpinLuzz();
 
         // Rückflug beschleunigen
-        currentReturnSpeed = Mathf.MoveTowards(currentReturnSpeed, returnSpeed, returnAcceleration * Time.deltaTime);
+        currentReturnSpeed =
+            Mathf.MoveTowards(
+                currentReturnSpeed,
+                returnSpeed,
+                returnAcceleration
+                * Time.deltaTime
+            );
 
         // Zur fahrenden Lory zurück
-        transform.position = Vector3.MoveTowards(transform.position, luzzAnchor.position, currentReturnSpeed * Time.deltaTime);
+        transform.position =
+            Vector3.MoveTowards(
+                transform.position,
+                luzzAnchor.position,
+                currentReturnSpeed
+                * Time.deltaTime
+            );
 
         // Lory erreicht
-        if (Vector3.Distance(transform.position, luzzAnchor.position) < 0.05f)
+        if (Vector3.Distance(
+            transform.position,
+            luzzAnchor.position
+        ) < 0.05f)
         {
-            transform.SetParent(luzzAnchor);
+            transform.SetParent(
+                luzzAnchor
+            );
 
             transform.localPosition =
                 Vector3.zero;
@@ -175,21 +312,28 @@ public class LuzzThrow : MonoBehaviour
             if (capturedGlitzie)
             {
                 capturedGlitzie.Deliver();
+
                 capturedGlitzie = null;
             }
 
-            state = LuzzState.Sitting;
+            state =
+                LuzzState.Sitting;
         }
     }
 
     private void SpinLuzz()
     {
-        transform.Rotate(spinAxis, spinSpeed * Time.deltaTime, Space.Self);
+        transform.Rotate(
+            spinAxis,
+            spinSpeed * Time.deltaTime,
+            Space.Self
+        );
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        // Nicht fangen, wenn Luzz auf Lory sitzt
+        // Nicht fangen,
+        // wenn Luzz auf Lory sitzt
         if (state == LuzzState.Sitting)
             return;
 
@@ -197,15 +341,23 @@ public class LuzzThrow : MonoBehaviour
         if (capturedGlitzie)
             return;
 
-        Glitzie glitzie = other.GetComponentInParent<Glitzie>();
+        Glitzie glitzie =
+            other.GetComponentInParent<Glitzie>();
 
         if (!glitzie)
             return;
 
-        capturedGlitzie = glitzie;
+        capturedGlitzie =
+            glitzie;
 
-        capturedGlitzie.Capture(catchPoint);
+        capturedGlitzie.Capture(
+            catchPoint
+        );
 
-        Debug.Log("Luzz hat " + capturedGlitzie.Type + " gefangen!");
+        Debug.Log(
+            "Luzz hat "
+            + capturedGlitzie.Type
+            + " gefangen!"
+        );
     }
 }

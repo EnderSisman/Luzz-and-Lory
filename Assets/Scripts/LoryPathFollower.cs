@@ -1,4 +1,6 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LoryPathFollower : MonoBehaviour
 {
@@ -11,14 +13,20 @@ public class LoryPathFollower : MonoBehaviour
     [Header("Movement")]
     [SerializeField] private float rotationSpeed = 5f;
 
+    [Header("Level End")]
+    [SerializeField] private float endingDelay = 1f;
+
     private int currentWaypointIndex = 0;
+
     private bool reachedEnd = false;
+    private bool sceneChangeStarted = false;
 
     private float totalPathDistance;
     private float calculatedMoveSpeed;
     private float elapsedTime;
 
-    // Fortschritt zwischen 0 und 1
+    public bool LevelFinished => reachedEnd;
+
     public float Progress01
     {
         get
@@ -36,7 +44,8 @@ public class LoryPathFollower : MonoBehaviour
 
         if (levelDuration > 0f)
         {
-            calculatedMoveSpeed = totalPathDistance / levelDuration;
+            calculatedMoveSpeed =
+                totalPathDistance / levelDuration;
         }
     }
 
@@ -49,9 +58,11 @@ public class LoryPathFollower : MonoBehaviour
 
         MoveToNextWaypoint();
 
+        // Levelzeit erreicht
         if (elapsedTime >= levelDuration)
         {
             elapsedTime = levelDuration;
+            FinishLevel();
         }
     }
 
@@ -60,46 +71,91 @@ public class LoryPathFollower : MonoBehaviour
         if (waypoints.Length == 0)
             return;
 
-        totalPathDistance = Vector3.Distance(transform.position, waypoints[0].position);
+        totalPathDistance =
+            Vector3.Distance(
+                transform.position,
+                waypoints[0].position
+            );
 
         for (int i = 0; i < waypoints.Length - 1; i++)
         {
-            totalPathDistance += Vector3.Distance(waypoints[i].position, waypoints[i + 1].position);
+            totalPathDistance +=
+                Vector3.Distance(
+                    waypoints[i].position,
+                    waypoints[i + 1].position
+                );
         }
     }
 
     private void MoveToNextWaypoint()
     {
-        Transform targetWaypoint = waypoints[currentWaypointIndex];
-        Vector3 direction = targetWaypoint.position - transform.position;
+        if (currentWaypointIndex >= waypoints.Length)
+            return;
 
-        // Lory bewegen
-        transform.position = Vector3.MoveTowards(transform.position, targetWaypoint.position, calculatedMoveSpeed * Time.deltaTime);
+        Transform targetWaypoint =
+            waypoints[currentWaypointIndex];
 
-        // Lory drehen
+        Vector3 direction =
+            targetWaypoint.position - transform.position;
+
+        transform.position =
+            Vector3.MoveTowards(
+                transform.position,
+                targetWaypoint.position,
+                calculatedMoveSpeed * Time.deltaTime
+            );
+
         if (direction != Vector3.zero)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            Quaternion targetRotation =
+                Quaternion.LookRotation(direction);
+
+            transform.rotation =
+                Quaternion.Slerp(
+                    transform.rotation,
+                    targetRotation,
+                    rotationSpeed * Time.deltaTime
+                );
         }
 
-        // Wegpunkt erreicht
-        if (Vector3.Distance(transform.position, targetWaypoint.position) < 0.05f)
+        if (Vector3.Distance(
+            transform.position,
+            targetWaypoint.position
+        ) < 0.05f)
         {
             currentWaypointIndex++;
 
             if (currentWaypointIndex >= waypoints.Length)
             {
-                reachedEnd = true;
-                elapsedTime = levelDuration;
-
-                OnReachedEnd();
+                FinishLevel();
             }
         }
     }
 
-    private void OnReachedEnd()
+    private void FinishLevel()
     {
-        Debug.Log("Lory hat das Streckenende erreicht.");
+        if (reachedEnd)
+            return;
+
+        reachedEnd = true;
+        elapsedTime = levelDuration;
+
+        Debug.Log("LEVEL BEENDET - Szenenwechsel wird gestartet.");
+
+        if (!sceneChangeStarted)
+        {
+            sceneChangeStarted = true;
+            StartCoroutine(ChangeToEndingScene());
+        }
+    }
+
+    private IEnumerator ChangeToEndingScene()
+    {
+        // Realtime, damit es auch bei Time.timeScale = 0 funktioniert
+        yield return new WaitForSecondsRealtime(endingDelay);
+
+        Debug.Log("Lade Ending_Scene...");
+
+        SceneManager.LoadScene("Ending_Scene");
     }
 }
