@@ -51,25 +51,20 @@ public class Glitzie : MonoBehaviour
 
         isCaptured = true;
 
-        // Bewegung sofort stoppen
-        GlitzieMovement[] movementScripts =
-            GetComponentsInChildren<GlitzieMovement>(true);
+        GlitzieMovement[] movementScripts = GetComponentsInChildren<GlitzieMovement>(true);
 
         foreach (GlitzieMovement movement in movementScripts)
         {
             movement.enabled = false;
         }
-
-        // Alle Collider deaktivieren
-        Collider[] colliders =
-            GetComponentsInChildren<Collider>(true);
+        
+        Collider[] colliders = GetComponentsInChildren<Collider>(true);
 
         foreach (Collider col in colliders)
         {
             col.enabled = false;
         }
 
-        // Falls ein Rigidbody vorhanden ist
         Rigidbody rb = GetComponent<Rigidbody>();
 
         if (rb)
@@ -81,7 +76,6 @@ public class Glitzie : MonoBehaviour
             rb.isKinematic = true;
         }
 
-        // An Luzz hängen
         transform.SetParent(catchPoint);
 
         transform.localPosition = Vector3.zero;
@@ -92,10 +86,7 @@ public class Glitzie : MonoBehaviour
     {
         if (GlitzieManager.Instance)
         {
-            GlitzieManager.Instance.AddGlitzie(
-                type,
-                Points
-            );
+            GlitzieManager.Instance.AddGlitzie(type, Points);
         }
 
         Destroy(gameObject);

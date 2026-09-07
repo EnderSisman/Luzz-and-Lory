@@ -44,8 +44,7 @@ public class LoryPathFollower : MonoBehaviour
 
         if (levelDuration > 0f)
         {
-            calculatedMoveSpeed =
-                totalPathDistance / levelDuration;
+            calculatedMoveSpeed = totalPathDistance / levelDuration;
         }
     }
 
@@ -58,10 +57,10 @@ public class LoryPathFollower : MonoBehaviour
 
         MoveToNextWaypoint();
 
-        // Levelzeit erreicht
         if (elapsedTime >= levelDuration)
         {
             elapsedTime = levelDuration;
+
             FinishLevel();
         }
     }
@@ -71,19 +70,11 @@ public class LoryPathFollower : MonoBehaviour
         if (waypoints.Length == 0)
             return;
 
-        totalPathDistance =
-            Vector3.Distance(
-                transform.position,
-                waypoints[0].position
-            );
+        totalPathDistance = Vector3.Distance(transform.position, waypoints[0].position);
 
         for (int i = 0; i < waypoints.Length - 1; i++)
         {
-            totalPathDistance +=
-                Vector3.Distance(
-                    waypoints[i].position,
-                    waypoints[i + 1].position
-                );
+            totalPathDistance += Vector3.Distance(waypoints[i].position, waypoints[i + 1].position);
         }
     }
 
@@ -92,36 +83,19 @@ public class LoryPathFollower : MonoBehaviour
         if (currentWaypointIndex >= waypoints.Length)
             return;
 
-        Transform targetWaypoint =
-            waypoints[currentWaypointIndex];
+        Transform targetWaypoint = waypoints[currentWaypointIndex];
 
-        Vector3 direction =
-            targetWaypoint.position - transform.position;
+        Vector3 direction = targetWaypoint.position - transform.position;
 
-        transform.position =
-            Vector3.MoveTowards(
-                transform.position,
-                targetWaypoint.position,
-                calculatedMoveSpeed * Time.deltaTime
-            );
+        transform.position = Vector3.MoveTowards(transform.position, targetWaypoint.position, calculatedMoveSpeed * Time.deltaTime);
 
         if (direction != Vector3.zero)
         {
-            Quaternion targetRotation =
-                Quaternion.LookRotation(direction);
-
-            transform.rotation =
-                Quaternion.Slerp(
-                    transform.rotation,
-                    targetRotation,
-                    rotationSpeed * Time.deltaTime
-                );
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
 
-        if (Vector3.Distance(
-            transform.position,
-            targetWaypoint.position
-        ) < 0.05f)
+        if (Vector3.Distance(transform.position, targetWaypoint.position) < 0.05f)
         {
             currentWaypointIndex++;
 
@@ -138,9 +112,10 @@ public class LoryPathFollower : MonoBehaviour
             return;
 
         reachedEnd = true;
+
         elapsedTime = levelDuration;
 
-        Debug.Log("LEVEL BEENDET - Szenenwechsel wird gestartet.");
+        Debug.Log("LEVEL BEENDET");
 
         if (!sceneChangeStarted)
         {
@@ -151,10 +126,12 @@ public class LoryPathFollower : MonoBehaviour
 
     private IEnumerator ChangeToEndingScene()
     {
-        // Realtime, damit es auch bei Time.timeScale = 0 funktioniert
         yield return new WaitForSecondsRealtime(endingDelay);
 
-        Debug.Log("Lade Ending_Scene...");
+        if (GlitzieManager.Instance)
+        {
+            GlitzieManager.Instance.SaveResults();
+        }
 
         SceneManager.LoadScene("Ending_Scene");
     }
