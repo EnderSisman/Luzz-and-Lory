@@ -18,7 +18,6 @@ public class GlitzieManager : MonoBehaviour
     private int smaragdCount;
     private int diamantCount;
 
-    // Wird intern berechnet, aber nicht im Gameplay angezeigt
     private int score;
 
     private void Awake()
@@ -79,6 +78,17 @@ public class GlitzieManager : MonoBehaviour
 
         if (diamantText)
             diamantText.text = diamantCount.ToString();
+    }
+
+    public void SaveResults()
+    {
+        GameResultData.GoldCount = goldCount;
+        GameResultData.RubyCount = rubinCount;
+        GameResultData.SaphireCount = saphirCount;
+        GameResultData.EmeraldCount = smaragdCount;
+        GameResultData.DiamondCount = diamantCount;
+
+        GameResultData.Score = score;
     }
 
     public int GetScore()

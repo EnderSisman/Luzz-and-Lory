@@ -89,7 +89,7 @@ public class GlitzieMovement : MonoBehaviour
     }
 
     // --------------------------------------------------
-    // WANDER
+    // WANDER GLITZIE
     // --------------------------------------------------
 
     private void WanderMovement()
@@ -107,97 +107,53 @@ public class GlitzieMovement : MonoBehaviour
             return;
         }
 
-        Vector3 direction =
-            wanderTarget - transform.position;
-
+        Vector3 direction = wanderTarget - transform.position;
         direction.y = 0f;
 
         RotateTowards(direction);
 
-        transform.position = Vector3.MoveTowards(
-            transform.position,
-            wanderTarget,
-            moveSpeed * Time.deltaTime
-        );
+        transform.position = Vector3.MoveTowards(transform.position, wanderTarget, moveSpeed * Time.deltaTime);
 
-        if (Vector3.Distance(
-            transform.position,
-            wanderTarget
-        ) <= targetReachedDistance)
+        if (Vector3.Distance(transform.position, wanderTarget) <= targetReachedDistance)
         {
             isWaiting = true;
-
-            waitTimer = Random.Range(
-                minPauseTime,
-                maxPauseTime
-            );
+            waitTimer = Random.Range(minPauseTime, maxPauseTime);
         }
     }
 
     private void ChooseNewWanderTarget()
     {
-        Vector2 randomPoint =
-            Random.insideUnitCircle * wanderRadius;
+        Vector2 randomPoint = Random.insideUnitCircle * wanderRadius;
 
-        wanderTarget = new Vector3(
-            startPosition.x + randomPoint.x,
-            startPosition.y,
-            startPosition.z + randomPoint.y
-        );
+        wanderTarget = new Vector3(startPosition.x + randomPoint.x, startPosition.y, startPosition.z + randomPoint.y);
     }
 
     // --------------------------------------------------
-    // CIRCLE
+    // CIRCLE GLITZIE
     // --------------------------------------------------
 
     private void CircleMovement()
     {
-        float directionMultiplier =
-            clockwise ? -1f : 1f;
+        float directionMultiplier = clockwise ? -1f : 1f;
+        circleAngle += circleSpeed * directionMultiplier * Time.deltaTime;
+        float angleRadians = circleAngle * Mathf.Deg2Rad;
 
-        circleAngle +=
-            circleSpeed *
-            directionMultiplier *
-            Time.deltaTime;
-
-        float angleRadians =
-            circleAngle * Mathf.Deg2Rad;
-
-        // Position auf dem Kreis
-        Vector3 newPosition = new Vector3(
-            startPosition.x +
-            Mathf.Cos(angleRadians) * circleRadius,
-
-            startPosition.y,
-
-            startPosition.z +
-            Mathf.Sin(angleRadians) * circleRadius
-        );
-
-        // Exakte Laufrichtung entlang des Kreises
-        Vector3 tangent = new Vector3(
-            -Mathf.Sin(angleRadians) * directionMultiplier,
-            0f,
-            Mathf.Cos(angleRadians) * directionMultiplier
-        );
+        Vector3 newPosition = new Vector3(startPosition.x + Mathf.Cos(angleRadians) * circleRadius, startPosition.y, startPosition.z + Mathf.Sin(angleRadians) * circleRadius);
+        Vector3 tangent = new Vector3(-Mathf.Sin(angleRadians) * directionMultiplier, 0f, Mathf.Cos(angleRadians) * directionMultiplier);
 
         if (tangent.sqrMagnitude > 0.001f)
         {
             Quaternion targetRotation =
                 Quaternion.LookRotation(tangent);
 
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                targetRotation,
-                rotationSpeed * Time.deltaTime
-            );
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
 
         transform.position = newPosition;
     }
 
     // --------------------------------------------------
-    // JUMP
+    // JUMP GLITZIE
     // --------------------------------------------------
 
     private void JumpMovement()
@@ -215,28 +171,12 @@ public class GlitzieMovement : MonoBehaviour
         }
 
         jumpTimer += Time.deltaTime;
+        float progress = Mathf.Clamp01(jumpTimer / jumpDuration);
+        Vector3 position = Vector3.Lerp(jumpStart, jumpTarget, progress);
 
-        float progress =
-            Mathf.Clamp01(
-                jumpTimer / jumpDuration
-            );
-
-        Vector3 position = Vector3.Lerp(
-            jumpStart,
-            jumpTarget,
-            progress
-        );
-
-        // Sprungbogen
-        float height =
-            Mathf.Sin(progress * Mathf.PI)
-            * jumpHeight;
-
+        float height = Mathf.Sin(progress * Mathf.PI) * jumpHeight;
         position.y += height;
-
-        Vector3 direction =
-            jumpTarget - jumpStart;
-
+        Vector3 direction = jumpTarget - jumpStart;
         direction.y = 0f;
 
         RotateTowards(direction);
@@ -257,15 +197,9 @@ public class GlitzieMovement : MonoBehaviour
     {
         jumpStart = transform.position;
 
-        Vector2 randomPoint =
-            Random.insideUnitCircle * jumpRadius;
+        Vector2 randomPoint = Random.insideUnitCircle * jumpRadius;
 
-        jumpTarget = new Vector3(
-            startPosition.x + randomPoint.x,
-            startPosition.y,
-            startPosition.z + randomPoint.y
-        );
-
+        jumpTarget = new Vector3(startPosition.x + randomPoint.x, startPosition.y, startPosition.z + randomPoint.y);
         jumpTimer = 0f;
         isJumping = true;
     }
@@ -277,7 +211,7 @@ public class GlitzieMovement : MonoBehaviour
     }
 
     // --------------------------------------------------
-    // ROTATION
+    // ROTATION GLITZIE
     // --------------------------------------------------
 
     private void RotateTowards(Vector3 direction)
@@ -287,14 +221,8 @@ public class GlitzieMovement : MonoBehaviour
         if (direction.sqrMagnitude < 0.001f)
             return;
 
-        Quaternion targetRotation =
-            Quaternion.LookRotation(direction);
+        Quaternion targetRotation = Quaternion.LookRotation(direction);
 
-        transform.rotation =
-            Quaternion.Slerp(
-                transform.rotation,
-                targetRotation,
-                rotationSpeed * Time.deltaTime
-            );
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
     }
 }
