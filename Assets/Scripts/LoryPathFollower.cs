@@ -85,10 +85,7 @@ public class LoryPathFollower : MonoBehaviour
 
         for (int i = 0; i < waypoints.Length - 1; i++)
         {
-            totalPathDistance += Vector3.Distance(
-                waypoints[i].position,
-                waypoints[i + 1].position
-            );
+            totalPathDistance += Vector3.Distance(waypoints[i].position, waypoints[i + 1].position);
         }
     }
 
@@ -139,24 +136,15 @@ public class LoryPathFollower : MonoBehaviour
         Transform targetWaypoint = waypoints[currentWaypointIndex];
         Vector3 direction = targetWaypoint.position - transform.position;
 
-        float currentSpeed =
-            calculatedBaseSpeed * GetSpeedMultiplierForSegment(currentWaypointIndex);
+        float currentSpeed = calculatedBaseSpeed * GetSpeedMultiplierForSegment(currentWaypointIndex);
 
-        transform.position = Vector3.MoveTowards(
-            transform.position,
-            targetWaypoint.position,
-            currentSpeed * Time.deltaTime
-        );
+        transform.position = Vector3.MoveTowards(transform.position, targetWaypoint.position, currentSpeed * Time.deltaTime);
 
         if (direction != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(direction);
 
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
-                targetRotation,
-                rotationSpeed * Time.deltaTime
-            );
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
 
         if (Vector3.Distance(transform.position, targetWaypoint.position) < 0.05f)
