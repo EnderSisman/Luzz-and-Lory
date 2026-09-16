@@ -8,8 +8,7 @@ public class LoryPathFollower : MonoBehaviour
     [System.Serializable]
     public class SegmentSpeedOverride
     {
-        [Tooltip("Für welchen Streckenabschnitt die Geschwindigkeit geändert werden soll. " +
-                 "Beispiel: Waypoint Index 50 = Strecke von Waypoint 49 zu Waypoint 50.")]
+        [Tooltip("Für welchen Streckenabschnitt die Geschwindigkeit geändert werden soll. " + "Beispiel: Waypoint Index 50 = Strecke von Waypoint 49 zu Waypoint 50.")]
         public int waypointIndex;
 
         [Tooltip("1 = normal, 0.5 = halb so schnell, 2 = doppelt so schnell.")]
@@ -72,6 +71,7 @@ public class LoryPathFollower : MonoBehaviour
         if (elapsedTime >= levelDuration)
         {
             elapsedTime = levelDuration;
+
             FinishLevel();
         }
     }
@@ -95,13 +95,14 @@ public class LoryPathFollower : MonoBehaviour
             return;
 
         float weightedDistance = 0f;
+
         Vector3 previousPosition = transform.position;
 
         for (int i = 0; i < waypoints.Length; i++)
         {
             float distance = Vector3.Distance(previousPosition, waypoints[i].position);
             float multiplier = GetSpeedMultiplierForSegment(i);
-
+            
             weightedDistance += distance / multiplier;
             previousPosition = waypoints[i].position;
         }
@@ -112,7 +113,9 @@ public class LoryPathFollower : MonoBehaviour
     private float GetSpeedMultiplierForSegment(int waypointIndex)
     {
         if (segmentSpeedOverrides == null || segmentSpeedOverrides.Count == 0)
+        {
             return 1f;
+        }
 
         foreach (SegmentSpeedOverride speedOverride in segmentSpeedOverrides)
         {
@@ -143,7 +146,6 @@ public class LoryPathFollower : MonoBehaviour
         if (direction != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(direction);
-
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
 
@@ -164,6 +166,7 @@ public class LoryPathFollower : MonoBehaviour
             return;
 
         reachedEnd = true;
+
         elapsedTime = levelDuration;
 
         Debug.Log("LEVEL BEENDET");
@@ -177,13 +180,22 @@ public class LoryPathFollower : MonoBehaviour
 
     private IEnumerator ChangeToEndingScene()
     {
-        yield return new WaitForSecondsRealtime(endingDelay);
+        yield return new WaitForSecondsRealtime(
+            endingDelay
+        );
 
         if (GlitzieManager.Instance)
         {
             GlitzieManager.Instance.SaveResults();
         }
 
-        SceneManager.LoadScene("Ending_Scene");
+        if (ScreenFader.Instance)
+        {
+            ScreenFader.Instance.FadeToScene("Ending_Scene");
+        }
+        else
+        {
+            SceneManager.LoadScene("Ending_Scene");
+        }
     }
 }

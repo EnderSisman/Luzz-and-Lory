@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -20,17 +21,54 @@ public class GameCursor : MonoBehaviour
         }
 
         Instance = this;
-
         DontDestroyOnLoad(gameObject);
+        SceneManager.sceneLoaded += OnSceneLoaded;
+
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
 
         SetCustomCursor();
+    }
 
-        SceneManager.sceneLoaded += OnSceneLoaded;
+    private IEnumerator Start()
+    {
+        yield return null;
+
+        ApplyCursorForCurrentScene();
     }
 
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
+
+        if (Instance == this)
+            Instance = null;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        StopAllCoroutines();
+        StartCoroutine(ApplyCursorNextFrame(scene));
+    }
+
+    private IEnumerator ApplyCursorNextFrame(Scene scene)
+    {
+        yield return null;
+
+        ApplyCursorForScene(scene);
+    }
+
+    private void ApplyCursorForCurrentScene()
+    {
+        ApplyCursorForScene(SceneManager.GetActiveScene());
+    }
+
+    private void ApplyCursorForScene(Scene scene)
+    {
+        if (scene.name == "Level01_Scene")
+            HideCursor();
+        else
+            ShowCursor();
     }
 
     private void SetCustomCursor()
@@ -41,20 +79,17 @@ public class GameCursor : MonoBehaviour
         Cursor.SetCursor(cursorTexture, hotspot, CursorMode.Auto);
     }
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    public void ShowCursor()
     {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
         SetCustomCursor();
+    }
 
-        if (scene.name == "Level01_Scene")
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-
-        else
-        {
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
+    public void HideCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 }

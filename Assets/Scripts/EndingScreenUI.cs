@@ -80,14 +80,19 @@ public class EndingScreenUI : MonoBehaviour
     {
         yield return CountUp(goldText, GameResultData.GoldCount, maxGold, goldDefaultColor, goldCompleteColor);
         yield return new WaitForSecondsRealtime(delayBetweenValues);
+        
         yield return CountUp(rubyText, GameResultData.RubyCount, maxRuby, rubyDefaultColor, rubyCompleteColor);
         yield return new WaitForSecondsRealtime(delayBetweenValues);
+
         yield return CountUp(saphireText, GameResultData.SaphireCount, maxSaphire, saphireDefaultColor, saphireCompleteColor);
         yield return new WaitForSecondsRealtime(delayBetweenValues);
+
         yield return CountUp(emeraldText, GameResultData.EmeraldCount, maxEmerald, emeraldDefaultColor, emeraldCompleteColor);
         yield return new WaitForSecondsRealtime(delayBetweenValues);
+
         yield return CountUp(diamondText, GameResultData.DiamondCount, maxDiamond, diamondDefaultColor, diamondCompleteColor);
         yield return new WaitForSecondsRealtime(delayBetweenValues);
+
         yield return CountUpScore(scoreText, GameResultData.Score);
         yield return new WaitForSecondsRealtime(inputAppearDelay);
 
@@ -123,8 +128,11 @@ public class EndingScreenUI : MonoBehaviour
 
             float progress = Mathf.Clamp01(timer / countDuration);
             int currentValue = Mathf.RoundToInt(Mathf.Lerp(0, targetValue, progress));
+
             text.text = currentValue.ToString();
+
             float alpha = Mathf.Clamp01(timer / fadeDuration);
+
             Color currentColor = defaultColor;
             currentColor.a = alpha;
             text.color = currentColor;
@@ -156,20 +164,22 @@ public class EndingScreenUI : MonoBehaviour
         while (timer < countDuration)
         {
             timer += Time.unscaledDeltaTime;
-
+            
             float progress = Mathf.Clamp01(timer / countDuration);
             int currentValue = Mathf.RoundToInt(Mathf.Lerp(0, targetValue, progress));
+
             text.text = currentValue.ToString();
+
             float alpha = Mathf.Clamp01(timer / fadeDuration);
             Color currentColor = scoreDefaultColor;
             currentColor.a = alpha;
+
             text.color = currentColor;
 
             yield return null;
         }
 
         text.text = targetValue.ToString();
-
         scoreDefaultColor.a = 1f;
         text.color = scoreDefaultColor;
     }
@@ -180,11 +190,8 @@ public class EndingScreenUI : MonoBehaviour
             return;
 
         text.text = "0";
-
         Color color = text.color;
-
         color.a = 0f;
-
         text.color = color;
     }
 
@@ -208,9 +215,7 @@ public class EndingScreenUI : MonoBehaviour
         while (timer < inputFadeDuration)
         {
             timer += Time.unscaledDeltaTime;
-
             group.alpha = Mathf.Clamp01(timer / inputFadeDuration);
-
             yield return null;
         }
 

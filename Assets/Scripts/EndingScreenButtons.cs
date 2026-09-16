@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class EndingScreenButtons : MonoBehaviour
 {
@@ -7,13 +6,29 @@ public class EndingScreenButtons : MonoBehaviour
     {
         GameResultData.Reset();
 
-        SceneManager.LoadScene("Level01_Scene");
+        if (!ScreenFader.Instance)
+        {
+            Debug.LogError("Kein ScreenFader gefunden!");
+            return;
+        }
+
+        Debug.Log("Restart mit Fade");
+
+        ScreenFader.Instance.FadeToScene("Level01_Scene");
     }
 
     public void GoToMainMenu()
     {
         GameResultData.Reset();
 
-        SceneManager.LoadScene("MainMenu_Scene");
+        if (!ScreenFader.Instance)
+        {
+            Debug.LogError("Kein ScreenFader gefunden!");
+            return;
+        }
+
+        Debug.Log("Main Menu mit Fade");
+
+        ScreenFader.Instance.FadeToScene("MainMenu_Scene");
     }
 }

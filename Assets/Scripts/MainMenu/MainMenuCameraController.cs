@@ -11,6 +11,8 @@ public class MainMenuCameraController : MonoBehaviour
     [SerializeField] private Transform saloonView;
     [SerializeField] private Transform sheriffView;
     [SerializeField] private Transform bankDoorZoomView;
+    [SerializeField] private Transform sheriffDoorZoomView;
+    [SerializeField] private Transform saloonDoorZoomView;
 
     [Header("Navigation Signs")]
     [SerializeField] private RectTransform bankLeftSign;
@@ -23,6 +25,30 @@ public class MainMenuCameraController : MonoBehaviour
     [SerializeField] private RectTransform infoSign;
     [SerializeField] private RectTransform backSign;
     [SerializeField] private RectTransform resetSign;
+    
+    [Header("Sheriff Room")]
+    [SerializeField] private CanvasGroup sheriffRoomUI;
+    [SerializeField] private RectTransform sheriffBackSign;
+
+    [Header("Sheriff Steuerung")]
+    [SerializeField] private RectTransform steuerungPanel;
+    [SerializeField] private float steuerungOffsetY = 300f;
+
+    [Header("Sheriff Sound Button")]
+    [SerializeField] private RectTransform sheriffSoundButton;
+    [SerializeField] private float soundButtonScaleDuration = 0.35f;
+
+    [Header("Timo Tresor")]
+    [SerializeField] private RectTransform timoTresor;
+    [SerializeField] private CanvasGroup timoTresorCanvasGroup;
+    [SerializeField] private float timoOffsetX = -40f;
+    [SerializeField] private float timoFadeDuration = 0.6f;
+
+    [Header("Rolf Revolver")]
+    [SerializeField] private RectTransform rolfRevolver;
+    [SerializeField] private CanvasGroup rolfRevolverCanvasGroup;
+    [SerializeField] private float rolfOffsetX = 40f;
+    [SerializeField] private float rolfFadeDuration = 0.6f;
 
     [Header("Camera Movement")]
     [SerializeField] private float moveDuration = 1.2f;
@@ -32,22 +58,28 @@ public class MainMenuCameraController : MonoBehaviour
     [SerializeField] private float signSlideDuration = 0.35f;
     [SerializeField] private float delayBetweenSigns = 0.1f;
 
-    [Header("Bank UI Fade")]
-    [SerializeField] private float bankUIFadeDelay = 0.35f;
-    [SerializeField] private float bankUIFadeDuration = 0.5f;
-
     [Header("Bank Sign Sequence")]
     [SerializeField] private float bankSignDelay = 0.15f;
 
     [Header("Info Sign")]
     [SerializeField] private float infoSignOffsetY = -600f;
+    
+    [Header("Bank UI Fade")]
+    [SerializeField] private float bankUIFadeDelay = 0.35f;
+    [SerializeField] private float bankUIFadeDuration = 0.5f;
+
+    [Header("Sheriff UI Fade")]
+    [SerializeField] private float sheriffUIFadeDelay = 0.35f;
+    [SerializeField] private float sheriffUIFadeDuration = 0.5f;
 
     private enum CurrentView
     {
         Bank,
         Saloon,
         Sheriff,
-        BankDoor
+        BankDoor,
+        SheriffDoor,
+        SaloonDoor
     }
 
     private CurrentView currentView = CurrentView.Saloon;
@@ -60,6 +92,15 @@ public class MainMenuCameraController : MonoBehaviour
     private Vector2 infoSignTarget;
     private Vector2 backSignTarget;
     private Vector2 resetSignTarget;
+
+    private Vector2 timoTresorTarget;
+
+    private Vector2 sheriffBackSignTarget;
+    private Vector2 steuerungPanelTarget;
+
+    private Vector2 rolfRevolverTarget;
+
+    private Vector3 sheriffSoundButtonTargetScale;
 
     private bool isMoving;
 
@@ -86,6 +127,21 @@ public class MainMenuCameraController : MonoBehaviour
         if (resetSign)
             resetSignTarget = resetSign.anchoredPosition;
 
+        if (timoTresor)
+            timoTresorTarget = timoTresor.anchoredPosition;
+
+        if (sheriffBackSign)
+            sheriffBackSignTarget = sheriffBackSign.anchoredPosition;
+
+        if (steuerungPanel)
+            steuerungPanelTarget = steuerungPanel.anchoredPosition;
+
+        if (rolfRevolver)
+            rolfRevolverTarget = rolfRevolver.anchoredPosition;
+
+        if (sheriffSoundButton)
+            sheriffSoundButtonTargetScale = sheriffSoundButton.localScale;
+
         if (bankRoomUI)
         {
             bankRoomUI.alpha = 0f;
@@ -93,14 +149,25 @@ public class MainMenuCameraController : MonoBehaviour
             bankRoomUI.blocksRaycasts = false;
         }
 
+        if (sheriffRoomUI)
+        {
+            sheriffRoomUI.alpha = 0f;
+            sheriffRoomUI.interactable = false;
+            sheriffRoomUI.blocksRaycasts = false;
+        }
+
         PrepareInfoSign();
-        
         PrepareSign(backSign, backSignTarget);
-        
         PrepareSign(resetSign, resetSignTarget);
+        PrepareTimoTresor();
+
+        PrepareSign(sheriffBackSign, sheriffBackSignTarget);
+        PrepareSteuerungPanel();
+        PrepareRolfRevolver();
+        PrepareSheriffSoundButton();
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
         if (mainCamera && saloonView)
         {
@@ -109,10 +176,17 @@ public class MainMenuCameraController : MonoBehaviour
         }
 
         currentView = CurrentView.Saloon;
-
         PrepareAllNavigationSigns();
 
-        StartCoroutine(SlideInSignsForCurrentView());
+        if (ScreenFader.Instance)
+        {
+            while (ScreenFader.Instance.IsFading)
+            {
+                yield return null;
+            }
+        }
+
+        yield return SlideInSignsForCurrentView();
     }
 
     public void GoToBank()
@@ -155,6 +229,30 @@ public class MainMenuCameraController : MonoBehaviour
         StartCoroutine(LeaveBankRoom());
     }
 
+    public void GoToSheriffDoor()
+    {
+        if (isMoving)
+            return;
+
+        StartCoroutine(EnterSheriffRoom());
+    }
+
+    public void ExitSheriffRoom()
+    {
+        if (isMoving)
+            return;
+
+        StartCoroutine(LeaveSheriffRoom());
+    }
+
+    public void GoToSaloonDoor()
+    {
+        if (isMoving)
+            return;
+
+        StartCoroutine(EnterSaloonRoom());
+    }
+
     private IEnumerator ChangeView(Transform targetView, CurrentView targetState)
     {
         if (!targetView || !mainCamera)
@@ -163,12 +261,11 @@ public class MainMenuCameraController : MonoBehaviour
         isMoving = true;
 
         yield return SlideOutCurrentSigns();
-
         yield return MoveCamera(targetView);
 
         currentView = targetState;
 
-        if (currentView != CurrentView.BankDoor)
+        if (currentView != CurrentView.BankDoor && currentView != CurrentView.SheriffDoor && currentView != CurrentView.SaloonDoor)
         {
             yield return SlideInSignsForCurrentView();
         }
@@ -185,10 +282,14 @@ public class MainMenuCameraController : MonoBehaviour
 
         yield return SlideOutCurrentSigns();
         StartCoroutine(MoveCamera(bankDoorZoomView));
-        
+
         yield return new WaitForSecondsRealtime(bankUIFadeDelay);
         yield return FadeCanvasGroup(bankRoomUI, 0f, 1f, bankUIFadeDuration);
+
         currentView = CurrentView.BankDoor;
+
+        if (timoTresor && timoTresorCanvasGroup)
+            StartCoroutine(FadeInTimoTresor());
 
         if (infoSign)
         {
@@ -197,7 +298,7 @@ public class MainMenuCameraController : MonoBehaviour
         }
 
         yield return new WaitForSecondsRealtime(bankSignDelay);
- 
+
         if (backSign)
         {
             PrepareSign(backSign, backSignTarget);
@@ -205,7 +306,7 @@ public class MainMenuCameraController : MonoBehaviour
         }
 
         yield return new WaitForSecondsRealtime(bankSignDelay);
-        
+
         if (resetSign)
         {
             PrepareSign(resetSign, resetSignTarget);
@@ -221,6 +322,9 @@ public class MainMenuCameraController : MonoBehaviour
             yield break;
 
         isMoving = true;
+
+        if (timoTresor && timoTresorCanvasGroup)
+            StartCoroutine(FadeOutTimoTresor());
 
         if (resetSign)
         {
@@ -242,11 +346,115 @@ public class MainMenuCameraController : MonoBehaviour
         }
 
         yield return FadeCanvasGroup(bankRoomUI, 1f, 0f, bankUIFadeDuration);
+
+        PrepareTimoTresor();
+
         yield return MoveCamera(bankView);
+
         currentView = CurrentView.Bank;
         yield return SlideInSignsForCurrentView();
 
         isMoving = false;
+    }
+
+    private IEnumerator EnterSheriffRoom()
+    {
+        if (!sheriffDoorZoomView || !mainCamera)
+            yield break;
+
+        isMoving = true;
+
+        PrepareSheriffSoundButton();
+
+        yield return SlideOutCurrentSigns();
+        StartCoroutine(MoveCamera(sheriffDoorZoomView));
+
+        yield return new WaitForSecondsRealtime(sheriffUIFadeDelay);
+        yield return FadeCanvasGroup(sheriffRoomUI, 0f, 1f, sheriffUIFadeDuration);
+
+        currentView = CurrentView.SheriffDoor;
+
+        if (rolfRevolver && rolfRevolverCanvasGroup)
+            StartCoroutine(FadeInRolfRevolver());
+
+        if (steuerungPanel)
+        {
+            PrepareSteuerungPanel();
+            yield return SlideInSteuerungPanel();
+        }
+
+        if (sheriffSoundButton)
+            yield return ScaleInSheriffSoundButton();
+
+        yield return new WaitForSecondsRealtime(bankSignDelay);
+
+        if (sheriffBackSign)
+        {
+            PrepareSign(sheriffBackSign, sheriffBackSignTarget);
+            yield return SlideIn(sheriffBackSign, sheriffBackSignTarget);
+        }
+
+        isMoving = false;
+    }
+
+    private IEnumerator LeaveSheriffRoom()
+    {
+        if (!sheriffView || !mainCamera)
+            yield break;
+
+        isMoving = true;
+
+        if (rolfRevolver && rolfRevolverCanvasGroup)
+            StartCoroutine(FadeOutRolfRevolver());
+
+        if (sheriffBackSign)
+        {
+            yield return SlideOut(sheriffBackSign, sheriffBackSignTarget);
+        }
+
+        yield return new WaitForSecondsRealtime(bankSignDelay);
+
+        if (sheriffSoundButton)
+        {
+            yield return ScaleOutSheriffSoundButton();
+        }
+
+        if (steuerungPanel)
+        {
+            yield return SlideOutSteuerungPanel();
+        }
+
+        yield return FadeCanvasGroup(sheriffRoomUI, 1f, 0f, sheriffUIFadeDuration);
+
+        PrepareRolfRevolver();
+        PrepareSteuerungPanel();
+        PrepareSheriffSoundButton();
+
+        yield return MoveCamera(sheriffView);
+
+        currentView = CurrentView.Sheriff;
+        yield return SlideInSignsForCurrentView();
+
+        isMoving = false;
+    }
+
+    private IEnumerator EnterSaloonRoom()
+    {
+        if (!saloonDoorZoomView || !mainCamera)
+            yield break;
+
+        isMoving = true;
+
+        yield return SlideOutCurrentSigns();
+
+        StartCoroutine(MoveCamera(saloonDoorZoomView));
+
+        GameResultData.Reset();
+
+        if (ScreenFader.Instance)
+            ScreenFader.Instance.FadeToScene("Level01_Scene");
+
+        currentView = CurrentView.SaloonDoor;
     }
 
     private IEnumerator MoveCamera(Transform targetView)
@@ -287,7 +495,6 @@ public class MainMenuCameraController : MonoBehaviour
             case CurrentView.Saloon:
 
                 StartCoroutine(SlideOut(bankLeftSign, bankLeftTarget));
-
                 yield return new WaitForSecondsRealtime(delayBetweenSigns);
 
                 yield return SlideOut(sheriffRightSign, sheriffRightTarget);
@@ -300,6 +507,12 @@ public class MainMenuCameraController : MonoBehaviour
 
             case CurrentView.BankDoor:
                 break;
+
+            case CurrentView.SheriffDoor:
+                break;
+
+            case CurrentView.SaloonDoor:
+                break;
         }
     }
 
@@ -310,7 +523,6 @@ public class MainMenuCameraController : MonoBehaviour
             case CurrentView.Bank:
 
                 PrepareSign(saloonRightSign, saloonRightTarget);
-
                 yield return SlideIn(saloonRightSign, saloonRightTarget);
                 break;
 
@@ -320,7 +532,6 @@ public class MainMenuCameraController : MonoBehaviour
                 PrepareSign(sheriffRightSign, sheriffRightTarget);
 
                 StartCoroutine(SlideIn(bankLeftSign, bankLeftTarget));
-
                 yield return new WaitForSecondsRealtime(delayBetweenSigns);
 
                 yield return SlideIn(sheriffRightSign, sheriffRightTarget);
@@ -329,11 +540,16 @@ public class MainMenuCameraController : MonoBehaviour
             case CurrentView.Sheriff:
 
                 PrepareSign(saloonLeftSign, saloonLeftTarget);
-
                 yield return SlideIn(saloonLeftSign, saloonLeftTarget);
                 break;
 
             case CurrentView.BankDoor:
+                break;
+
+            case CurrentView.SheriffDoor:
+                break;
+
+            case CurrentView.SaloonDoor:
                 break;
         }
     }
@@ -364,6 +580,268 @@ public class MainMenuCameraController : MonoBehaviour
         sign.anchoredPosition = targetPosition + new Vector2(0f, signOffsetY);
     }
 
+    private void PrepareSteuerungPanel()
+    {
+        if (!steuerungPanel)
+            return;
+
+        steuerungPanel.gameObject.SetActive(false);
+        steuerungPanel.anchoredPosition = steuerungPanelTarget + new Vector2(0f, steuerungOffsetY);
+    }
+
+    private IEnumerator SlideInSteuerungPanel()
+    {
+        if (!steuerungPanel)
+            yield break;
+
+        steuerungPanel.gameObject.SetActive(true);
+        Vector2 startPosition = steuerungPanelTarget + new Vector2(0f, steuerungOffsetY);
+        steuerungPanel.anchoredPosition = startPosition;
+        float timer = 0f;
+
+        while (timer < signSlideDuration)
+        {
+            timer += Time.unscaledDeltaTime;
+
+            float progress = Mathf.Clamp01(timer / signSlideDuration);
+            float easedProgress = 1f - Mathf.Pow(1f - progress, 3f);
+
+            steuerungPanel.anchoredPosition = Vector2.Lerp(startPosition, steuerungPanelTarget, easedProgress);
+
+            yield return null;
+        }
+
+        steuerungPanel.anchoredPosition = steuerungPanelTarget;
+    }
+
+    private IEnumerator SlideOutSteuerungPanel()
+    {
+        if (!steuerungPanel)
+            yield break;
+
+        Vector2 startPosition = steuerungPanel.anchoredPosition;
+        Vector2 endPosition = steuerungPanelTarget + new Vector2(0f, steuerungOffsetY);
+
+        float timer = 0f;
+
+        while (timer < signSlideDuration)
+        {
+            timer += Time.unscaledDeltaTime;
+
+            float progress = Mathf.Clamp01(timer / signSlideDuration);
+            float easedProgress = Mathf.SmoothStep(0f, 1f, progress);
+
+            steuerungPanel.anchoredPosition = Vector2.Lerp(startPosition, endPosition, easedProgress);
+
+            yield return null;
+        }
+
+        steuerungPanel.anchoredPosition = endPosition;
+        steuerungPanel.gameObject.SetActive(false);
+    }
+
+    private void PrepareSheriffSoundButton()
+    {
+        if (!sheriffSoundButton)
+            return;
+
+        sheriffSoundButton.localScale = Vector3.zero;
+    }
+
+    private IEnumerator ScaleInSheriffSoundButton()
+    {
+        if (!sheriffSoundButton)
+            yield break;
+
+        sheriffSoundButton.localScale = Vector3.zero;
+
+        float timer = 0f;
+
+        while (timer < soundButtonScaleDuration)
+        {
+            timer += Time.unscaledDeltaTime;
+
+            float progress = Mathf.Clamp01(timer / soundButtonScaleDuration);
+            float easedProgress = 1f - Mathf.Pow(1f - progress, 3f);
+
+            sheriffSoundButton.localScale = Vector3.Lerp(Vector3.zero, sheriffSoundButtonTargetScale, easedProgress);
+
+            yield return null;
+        }
+
+        sheriffSoundButton.localScale = sheriffSoundButtonTargetScale;
+    }
+
+    private IEnumerator ScaleOutSheriffSoundButton()
+    {
+        if (!sheriffSoundButton)
+            yield break;
+
+        Vector3 startScale = sheriffSoundButton.localScale;
+
+        float timer = 0f;
+
+        while (timer < soundButtonScaleDuration)
+        {
+            timer += Time.unscaledDeltaTime;
+
+            float progress = Mathf.Clamp01(timer / soundButtonScaleDuration);
+            float easedProgress = Mathf.SmoothStep(0f, 1f, progress);
+
+            sheriffSoundButton.localScale = Vector3.Lerp(startScale, Vector3.zero, easedProgress);
+
+            yield return null;
+        }
+
+        sheriffSoundButton.localScale = Vector3.zero;
+    }
+
+    private void PrepareTimoTresor()
+    {
+        if (!timoTresor || !timoTresorCanvasGroup)
+            return;
+
+        timoTresor.anchoredPosition = timoTresorTarget + new Vector2(timoOffsetX, 0f);
+        timoTresorCanvasGroup.alpha = 0f;
+        timoTresorCanvasGroup.interactable = false;
+        timoTresorCanvasGroup.blocksRaycasts = false;
+
+        timoTresor.gameObject.SetActive(false);
+    }
+
+    private IEnumerator FadeInTimoTresor()
+    {
+        if (!timoTresor || !timoTresorCanvasGroup)
+            yield break;
+
+        timoTresor.gameObject.SetActive(true);
+
+        Vector2 startPosition = timoTresorTarget + new Vector2(timoOffsetX, 0f);
+
+        timoTresor.anchoredPosition = startPosition;
+        timoTresorCanvasGroup.alpha = 0f;
+
+        float timer = 0f;
+
+        while (timer < timoFadeDuration)
+        {
+            timer += Time.unscaledDeltaTime;
+
+            float progress = Mathf.Clamp01(timer / timoFadeDuration);
+            float easedProgress = Mathf.SmoothStep(0f, 1f, progress);
+
+            timoTresor.anchoredPosition = Vector2.Lerp(startPosition, timoTresorTarget, easedProgress);
+            timoTresorCanvasGroup.alpha = Mathf.Lerp(0f, 1f, easedProgress);
+
+            yield return null;
+        }
+
+        timoTresor.anchoredPosition = timoTresorTarget;
+        timoTresorCanvasGroup.alpha = 1f;
+    }
+
+    private IEnumerator FadeOutTimoTresor()
+    {
+        if (!timoTresor || !timoTresorCanvasGroup)
+            yield break;
+
+        Vector2 startPosition = timoTresor.anchoredPosition;
+        Vector2 endPosition = timoTresorTarget + new Vector2(timoOffsetX, 0f);
+
+        float startAlpha = timoTresorCanvasGroup.alpha;
+        float timer = 0f;
+
+        while (timer < timoFadeDuration)
+        {
+            timer += Time.unscaledDeltaTime;
+
+            float progress = Mathf.Clamp01(timer / timoFadeDuration);
+            float easedProgress = Mathf.SmoothStep(0f, 1f, progress);
+
+            timoTresor.anchoredPosition = Vector2.Lerp(startPosition, endPosition, easedProgress);
+            timoTresorCanvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, easedProgress);
+
+            yield return null;
+        }
+
+        timoTresorCanvasGroup.alpha = 0f;
+        timoTresor.anchoredPosition = endPosition;
+        timoTresor.gameObject.SetActive(false);
+    }
+
+    private void PrepareRolfRevolver()
+    {
+        if (!rolfRevolver || !rolfRevolverCanvasGroup)
+            return;
+
+        rolfRevolver.anchoredPosition = rolfRevolverTarget + new Vector2(rolfOffsetX, 0f);
+        rolfRevolverCanvasGroup.alpha = 0f;
+        rolfRevolverCanvasGroup.interactable = false;
+        rolfRevolverCanvasGroup.blocksRaycasts = false;
+
+        rolfRevolver.gameObject.SetActive(false);
+    }
+
+    private IEnumerator FadeInRolfRevolver()
+    {
+        if (!rolfRevolver || !rolfRevolverCanvasGroup)
+            yield break;
+
+        rolfRevolver.gameObject.SetActive(true);
+
+        Vector2 startPosition = rolfRevolverTarget + new Vector2(rolfOffsetX, 0f);
+
+        rolfRevolver.anchoredPosition = startPosition;
+        rolfRevolverCanvasGroup.alpha = 0f;
+
+        float timer = 0f;
+
+        while (timer < rolfFadeDuration)
+        {
+            timer += Time.unscaledDeltaTime;
+
+            float progress = Mathf.Clamp01(timer / rolfFadeDuration);
+            float easedProgress = Mathf.SmoothStep(0f, 1f, progress);
+
+            rolfRevolver.anchoredPosition = Vector2.Lerp(startPosition, rolfRevolverTarget, easedProgress);
+            rolfRevolverCanvasGroup.alpha = Mathf.Lerp(0f, 1f, easedProgress);
+
+            yield return null;
+        }
+
+        rolfRevolver.anchoredPosition = rolfRevolverTarget;
+        rolfRevolverCanvasGroup.alpha = 1f;
+    }
+
+    private IEnumerator FadeOutRolfRevolver()
+    {
+        if (!rolfRevolver || !rolfRevolverCanvasGroup)
+            yield break;
+
+        Vector2 startPosition = rolfRevolver.anchoredPosition;
+        Vector2 endPosition = rolfRevolverTarget + new Vector2(rolfOffsetX, 0f);
+
+        float startAlpha = rolfRevolverCanvasGroup.alpha;
+        float timer = 0f;
+
+        while (timer < rolfFadeDuration)
+        {
+            timer += Time.unscaledDeltaTime;
+
+            float progress = Mathf.Clamp01(timer / rolfFadeDuration);
+            float easedProgress = Mathf.SmoothStep(0f, 1f, progress);
+
+            rolfRevolver.anchoredPosition = Vector2.Lerp(startPosition, endPosition, easedProgress);
+            rolfRevolverCanvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, easedProgress);
+
+            yield return null;
+        }
+
+        rolfRevolverCanvasGroup.alpha = 0f;
+        rolfRevolver.anchoredPosition = endPosition;
+        rolfRevolver.gameObject.SetActive(false);
+    }
+
     private IEnumerator SlideIn(RectTransform sign, Vector2 targetPosition)
     {
         if (!sign)
@@ -374,7 +852,6 @@ public class MainMenuCameraController : MonoBehaviour
         Vector2 startPosition = targetPosition + new Vector2(0f, signOffsetY);
 
         sign.anchoredPosition = startPosition;
-
         float timer = 0f;
 
         while (timer < signSlideDuration)
@@ -398,7 +875,6 @@ public class MainMenuCameraController : MonoBehaviour
             yield break;
 
         Vector2 startPosition = sign.anchoredPosition;
-
         Vector2 endPosition = targetPosition + new Vector2(0f, signOffsetY);
 
         float timer = 0f;
@@ -409,7 +885,7 @@ public class MainMenuCameraController : MonoBehaviour
 
             float progress = Mathf.Clamp01(timer / signSlideDuration);
             float easedProgress = Mathf.SmoothStep(0f, 1f, progress);
-            
+
             sign.anchoredPosition = Vector2.Lerp(startPosition, endPosition, easedProgress);
 
             yield return null;
@@ -425,11 +901,8 @@ public class MainMenuCameraController : MonoBehaviour
             yield break;
 
         sign.gameObject.SetActive(true);
-
         Vector2 startPosition = targetPosition + new Vector2(0f, customOffsetY);
-
         sign.anchoredPosition = startPosition;
-
         float timer = 0f;
 
         while (timer < signSlideDuration)
@@ -438,9 +911,9 @@ public class MainMenuCameraController : MonoBehaviour
 
             float progress = Mathf.Clamp01(timer / signSlideDuration);
             float easedProgress = 1f - Mathf.Pow(1f - progress, 3f);
-            
+
             sign.anchoredPosition = Vector2.Lerp(startPosition, targetPosition, easedProgress);
-            
+
             yield return null;
         }
 
@@ -453,9 +926,8 @@ public class MainMenuCameraController : MonoBehaviour
             yield break;
 
         Vector2 startPosition = sign.anchoredPosition;
-
         Vector2 endPosition = targetPosition + new Vector2(0f, customOffsetY);
-        
+
         float timer = 0f;
 
         while (timer < signSlideDuration)
@@ -471,7 +943,6 @@ public class MainMenuCameraController : MonoBehaviour
         }
 
         sign.anchoredPosition = endPosition;
-
         sign.gameObject.SetActive(false);
     }
 
@@ -499,9 +970,7 @@ public class MainMenuCameraController : MonoBehaviour
         }
 
         group.alpha = endAlpha;
-
         bool visible = endAlpha > 0.5f;
-
         group.interactable = visible;
         group.blocksRaycasts = visible;
     }
