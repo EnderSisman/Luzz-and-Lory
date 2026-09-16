@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class HighscoreFloat : MonoBehaviour
+public class UIFloat : MonoBehaviour
 {
     [Header("Float")]
     [SerializeField] private float floatHeight = 12f;

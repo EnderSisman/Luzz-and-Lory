@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class SaloonDoor : MonoBehaviour
+public class SheriffDoor : MonoBehaviour
 {
     [SerializeField] private Camera mainCamera;
     [SerializeField] private MainMenuCameraController cameraController;
@@ -21,7 +21,7 @@ public class SaloonDoor : MonoBehaviour
             if (hit.collider.transform == transform || hit.collider.transform.IsChildOf(transform) || transform.IsChildOf(hit.collider.transform))
             {
                 if (cameraController)
-                    cameraController.GoToSaloonDoor();
+                    cameraController.GoToSheriffDoor();
             }
         }
     }
