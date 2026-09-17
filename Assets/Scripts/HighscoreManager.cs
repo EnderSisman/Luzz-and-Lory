@@ -11,12 +11,8 @@ public class HighscoreManager : MonoBehaviour
         public string playerName;
         public int score;
         public long entryOrder;
-
-        public HighscoreEntry(
-            string playerName,
-            int score,
-            long entryOrder
-        )
+        
+        public HighscoreEntry(string playerName, int score, long entryOrder)
         {
             this.playerName = playerName;
             this.score = score;
@@ -27,15 +23,14 @@ public class HighscoreManager : MonoBehaviour
     [Serializable]
     public class HighscoreData
     {
-        public List<HighscoreEntry> entries =
-            new List<HighscoreEntry>();
+        public List<HighscoreEntry> entries = new List<HighscoreEntry>();
     }
 
     [Header("Name Input")]
     [SerializeField] private TMP_InputField nameInput;
 
-    [Header("Save Button")]
-    [SerializeField] private GameObject saveButton;
+    [Header("Ending Screen")]
+    [SerializeField] private EndingScreenUI endingScreenUI;
 
     [Header("Highscore Names")]
     [SerializeField] private TMP_Text[] nameTexts;
@@ -76,7 +71,7 @@ public class HighscoreManager : MonoBehaviour
         }
 
         SortHighscores();
-        
+
         int lowestTopScore = highscoreData.entries[maxEntries - 1].score;
 
         return score >= lowestTopScore;
@@ -106,11 +101,9 @@ public class HighscoreManager : MonoBehaviour
 
         currentScoreSaved = true;
 
-        nameInput.gameObject.SetActive(false);
-
-        if (saveButton)
+        if (endingScreenUI)
         {
-            saveButton.SetActive(false);
+            endingScreenUI.HideHighscoreInput();
         }
     }
 
@@ -119,6 +112,7 @@ public class HighscoreManager : MonoBehaviour
         int newOrder = PlayerPrefs.GetInt(EntryOrderKey, 0) + 1;
 
         PlayerPrefs.SetInt(EntryOrderKey, newOrder);
+
         HighscoreEntry newEntry = new HighscoreEntry(playerName, score, newOrder);
 
         highscoreData.entries.Add(newEntry);
@@ -137,17 +131,16 @@ public class HighscoreManager : MonoBehaviour
     private void SortHighscores()
     {
         highscoreData?.entries.Sort((a, b) =>
-            {
-                int scoreCompare = b.score.CompareTo(a.score);
-                
-                if (scoreCompare != 0)
-                {
-                    return scoreCompare;
-                }
+        {
+            int scoreCompare = b.score.CompareTo(a.score);
 
-                return b.entryOrder.CompareTo(a.entryOrder);          // Bei gleicher Punktzahl: neuerer Eintrag zuerst
+            if (scoreCompare != 0)
+            {
+                return scoreCompare;
             }
-        );
+            
+            return b.entryOrder.CompareTo(a.entryOrder);
+        });
     }
 
     private void LoadHighscores()
@@ -170,6 +163,7 @@ public class HighscoreManager : MonoBehaviour
     private void SaveHighscores()
     {
         string json = JsonUtility.ToJson(highscoreData);
+        
         PlayerPrefs.SetString(HighscoreKey, json);
         PlayerPrefs.Save();
     }

@@ -345,7 +345,7 @@ GameObject:
   - component: {fileID: 225769005}
   - component: {fileID: 225769008}
   m_Layer: 5
-  m_Name: SaloonRight
+  m_Name: SaloonRightSign
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -446,7 +446,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 7a2303a353a66d340a4ccaf028ce346a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1f73b7bb13ffa464a8f3fad2497ae099, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -507,15 +507,15 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 247840157}
   m_LocalRotation: {x: 0.0002622705, y: 0.00017752923, z: -0.00042300732, w: 0.9999999}
-  m_LocalPosition: {x: 0, y: 0, z: -0}
-  m_LocalScale: {x: 0.18, y: 0.18, z: 0.18}
-  m_ConstrainProportionsScale: 1
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.18, y: 0.2, z: 0.18}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 947442437}
   m_LocalEulerAnglesHint: {x: 0.03, y: 0.02, z: -0.048}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 568, y: -444}
+  m_AnchoredPosition: {x: 509, y: -444}
   m_SizeDelta: {x: 1190, y: 1186}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &247840159
@@ -538,7 +538,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c69b91ff7d8290b41804ae1b4130c267, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ac7ee9d55ae8bcf46a48d71d16aacb6a, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1070,7 +1070,7 @@ GameObject:
   - component: {fileID: 635213067}
   - component: {fileID: 635213070}
   m_Layer: 5
-  m_Name: SheriffRight
+  m_Name: SheriffRightSign
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1171,7 +1171,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 73ebc6f86e7e35644b39b31ccbb80120, type: 3}
+  m_Sprite: {fileID: 21300000, guid: dde2111a209e9554a83765ecca7f1878, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1232,15 +1232,15 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 642037829}
   m_LocalRotation: {x: 0.0002622705, y: 0.00017752923, z: -0.00042300732, w: 0.9999999}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.17999999, y: 0.17999998, z: 0.17999999}
-  m_ConstrainProportionsScale: 1
+  m_LocalPosition: {x: 0, y: 0, z: -0}
+  m_LocalScale: {x: 0.17999999, y: 0.2, z: 0.17999999}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 886346339}
   m_LocalEulerAnglesHint: {x: 0.03, y: 0.02, z: -0.048}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -490, y: -443}
+  m_AnchoredPosition: {x: -490, y: -463}
   m_SizeDelta: {x: 1190, y: 1186}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &642037831
@@ -1334,7 +1334,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c69b91ff7d8290b41804ae1b4130c267, type: 3}
+  m_Sprite: {fileID: 21300000, guid: ac7ee9d55ae8bcf46a48d71d16aacb6a, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2083,7 +2083,7 @@ GameObject:
   - component: {fileID: 699103162}
   - component: {fileID: 699103165}
   m_Layer: 5
-  m_Name: BankLeft
+  m_Name: BankLeftSign
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2184,7 +2184,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4598cac736a76da47b15dd3ef5030e52, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7689b1c0d64ae6a46ba907837948862f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4183,14 +4183,14 @@ RectTransform:
   m_GameObject: {fileID: 1058448679}
   m_LocalRotation: {x: 0.0002622705, y: 0.00017752923, z: -0.00042300732, w: 0.9999999}
   m_LocalPosition: {x: 0, y: 0, z: -0}
-  m_LocalScale: {x: 0.18, y: 0.18, z: 0.18}
-  m_ConstrainProportionsScale: 1
+  m_LocalScale: {x: 0.18, y: 0.2, z: 0.18}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 947442437}
   m_LocalEulerAnglesHint: {x: 0.03, y: 0.02, z: -0.048}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 134, y: -444}
+  m_AnchoredPosition: {x: 250, y: -444}
   m_SizeDelta: {x: 1190, y: 1186}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1058448681
@@ -4284,7 +4284,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: fff6739b9050704449b45450f2421a5a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6479b07610b8e744e97c32a408b0f941, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4568,14 +4568,14 @@ RectTransform:
   m_GameObject: {fileID: 1346311016}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 0.65, y: 0.65, z: 0.65}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 947442437}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 344, y: -150}
+  m_AnchoredPosition: {x: 380, y: -34}
   m_SizeDelta: {x: 1176, y: 1337}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1346311018
@@ -4598,7 +4598,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: ee5eb39a4893c174e98eb9d626f9e8ef, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0a15d88142144f645a5d742a2ab47a4b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5200,7 +5200,7 @@ GameObject:
   - component: {fileID: 1648779299}
   - component: {fileID: 1648779302}
   m_Layer: 5
-  m_Name: SaloonLeft
+  m_Name: SaloonLeftSign
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5301,7 +5301,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: cc171087de6a57a459ebea874b3e2323, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1f2431fa336901a418c4092d763b1fd7, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
