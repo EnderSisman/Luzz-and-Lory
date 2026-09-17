@@ -80,7 +80,7 @@ public class EndingScreenUI : MonoBehaviour
     {
         yield return CountUp(goldText, GameResultData.GoldCount, maxGold, goldDefaultColor, goldCompleteColor);
         yield return new WaitForSecondsRealtime(delayBetweenValues);
-        
+
         yield return CountUp(rubyText, GameResultData.RubyCount, maxRuby, rubyDefaultColor, rubyCompleteColor);
         yield return new WaitForSecondsRealtime(delayBetweenValues);
 
@@ -115,6 +115,58 @@ public class EndingScreenUI : MonoBehaviour
         }
     }
 
+    public void HideHighscoreInput()
+    {
+        StartCoroutine(FadeOutHighscoreInput());
+    }
+
+    private IEnumerator FadeOutHighscoreInput()
+    {
+        if (nameInputGroup)
+        {
+            nameInputGroup.interactable = false;
+            nameInputGroup.blocksRaycasts = false;
+        }
+
+        if (saveButtonGroup)
+        {
+            saveButtonGroup.interactable = false;
+            saveButtonGroup.blocksRaycasts = false;
+        }
+
+        float nameStartAlpha = nameInputGroup ? nameInputGroup.alpha : 0f;
+        float buttonStartAlpha = saveButtonGroup ? saveButtonGroup.alpha : 0f;
+        float timer = 0f;
+
+        while (timer < inputFadeDuration)
+        {
+            timer += Time.unscaledDeltaTime;
+            float progress = Mathf.Clamp01(timer / inputFadeDuration);
+
+            if (nameInputGroup)
+            {
+                nameInputGroup.alpha = Mathf.Lerp(nameStartAlpha, 0f, progress);
+            }
+
+            if (saveButtonGroup)
+            {
+                saveButtonGroup.alpha = Mathf.Lerp(buttonStartAlpha, 0f, progress);
+            }
+
+            yield return null;
+        }
+
+        if (nameInputGroup)
+        {
+            nameInputGroup.alpha = 0f;
+        }
+
+        if (saveButtonGroup)
+        {
+            saveButtonGroup.alpha = 0f;
+        }
+    }
+
     private IEnumerator CountUp(TMP_Text text, int targetValue, int maxValue, Color defaultColor, Color completeColor)
     {
         if (!text)
@@ -125,15 +177,13 @@ public class EndingScreenUI : MonoBehaviour
         while (timer < countDuration)
         {
             timer += Time.unscaledDeltaTime;
-
             float progress = Mathf.Clamp01(timer / countDuration);
             int currentValue = Mathf.RoundToInt(Mathf.Lerp(0, targetValue, progress));
 
             text.text = currentValue.ToString();
-
             float alpha = Mathf.Clamp01(timer / fadeDuration);
-
             Color currentColor = defaultColor;
+
             currentColor.a = alpha;
             text.color = currentColor;
 
@@ -164,7 +214,7 @@ public class EndingScreenUI : MonoBehaviour
         while (timer < countDuration)
         {
             timer += Time.unscaledDeltaTime;
-            
+
             float progress = Mathf.Clamp01(timer / countDuration);
             int currentValue = Mathf.RoundToInt(Mathf.Lerp(0, targetValue, progress));
 
@@ -172,8 +222,8 @@ public class EndingScreenUI : MonoBehaviour
 
             float alpha = Mathf.Clamp01(timer / fadeDuration);
             Color currentColor = scoreDefaultColor;
-            currentColor.a = alpha;
 
+            currentColor.a = alpha;
             text.color = currentColor;
 
             yield return null;
@@ -190,8 +240,11 @@ public class EndingScreenUI : MonoBehaviour
             return;
 
         text.text = "0";
+
         Color color = text.color;
+
         color.a = 0f;
+
         text.color = color;
     }
 
@@ -212,10 +265,14 @@ public class EndingScreenUI : MonoBehaviour
 
         float timer = 0f;
 
+        group.interactable = false;
+        group.blocksRaycasts = false;
+
         while (timer < inputFadeDuration)
         {
             timer += Time.unscaledDeltaTime;
             group.alpha = Mathf.Clamp01(timer / inputFadeDuration);
+
             yield return null;
         }
 
