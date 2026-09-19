@@ -11,6 +11,7 @@ public class PauseManager : MonoBehaviour
 
     [Header("Audio")]
     [SerializeField] private AudioSource levelMusic;
+    [SerializeField] private AudioSource levelSFX;
 
     [Header("Audio Button")]
     [SerializeField] private Image audioButtonImage;
@@ -39,6 +40,9 @@ public class PauseManager : MonoBehaviour
 
         if (levelMusic)
             levelMusic.mute = isMuted;
+
+        if (levelSFX)
+            levelSFX.mute = isMuted;
 
         HideCursor();
         UpdateAudioIcon();
@@ -90,6 +94,9 @@ public class PauseManager : MonoBehaviour
         if (levelMusic)
             levelMusic.Pause();
 
+        if (levelSFX)
+            levelSFX.Pause();
+
         if (luzzThrow)
             luzzThrow.enabled = false;
 
@@ -120,6 +127,12 @@ public class PauseManager : MonoBehaviour
             levelMusic.UnPause();
         }
 
+        if (levelSFX)
+        {
+            levelSFX.mute = AudioSettingsData.IsMuted;
+            levelSFX.UnPause();
+        }
+
         if (luzzThrow)
             luzzThrow.enabled = true;
 
@@ -143,6 +156,9 @@ public class PauseManager : MonoBehaviour
 
         if (levelMusic)
             levelMusic.mute = isMuted;
+
+        if (levelSFX)
+            levelSFX.mute = isMuted;
 
         UpdateAudioIcon();
     }
@@ -172,6 +188,9 @@ public class PauseManager : MonoBehaviour
         if (levelMusic)
             levelMusic.Stop();
 
+        if (levelSFX)
+            levelSFX.Stop();
+
         if (ScreenFader.Instance)
             ScreenFader.Instance.FadeToScene("Level01_Scene");
         else
@@ -192,6 +211,9 @@ public class PauseManager : MonoBehaviour
 
         if (levelMusic)
             levelMusic.Stop();
+
+        if (levelSFX)
+            levelSFX.Stop();
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;

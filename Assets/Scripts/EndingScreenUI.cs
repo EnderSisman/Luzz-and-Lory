@@ -34,11 +34,11 @@ public class EndingScreenUI : MonoBehaviour
     [SerializeField] private float inputFadeDuration = 0.5f;
 
     [Header("Maximum Glitzies")]
-    [SerializeField] private int maxGold = 10;
-    [SerializeField] private int maxRuby = 10;
-    [SerializeField] private int maxSaphire = 10;
-    [SerializeField] private int maxEmerald = 10;
-    [SerializeField] private int maxDiamond = 10;
+    [SerializeField] private int maxGold = 20;
+    [SerializeField] private int maxRuby = 5;
+    [SerializeField] private int maxSaphire = 5;
+    [SerializeField] private int maxEmerald = 3;
+    [SerializeField] private int maxDiamond = 1;
 
     [Header("Completed Colors")]
     [SerializeField] private Color goldCompleteColor = new Color(1f, 0.75f, 0f);

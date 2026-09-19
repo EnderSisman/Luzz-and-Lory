@@ -102,10 +102,10 @@ public class LuzzThrow : MonoBehaviour
     private void ThrowLuzz()
     {
         Vector2 crosshairScreenPosition = RectTransformUtility.WorldToScreenPoint(null, crosshair.position);       // Position des Crosshairs auf dem Bildschirm
-        Ray aimRay = mainCamera.ScreenPointToRay(crosshairScreenPosition);                                          // Ray durch das Crosshair
-        
-        targetPosition = aimRay.GetPoint(throwDistance);                                                               // Zielposition bestimmen                                                             
-       
+        Ray aimRay = mainCamera.ScreenPointToRay(crosshairScreenPosition);                                         // Ray durch das Crosshair
+
+        targetPosition = aimRay.GetPoint(throwDistance);                                                           // Zielposition bestimmen
+
         throwStartPosition = transform.position;
         throwProgress = 0f;
 
@@ -121,7 +121,7 @@ public class LuzzThrow : MonoBehaviour
         float totalDistance = Vector3.Distance(throwStartPosition, targetPosition);
         float remainingDistance = totalDistance * (1f - throwProgress);
         float currentSpeed = throwSpeed;
-        
+
         if (remainingDistance < slowdownDistance)
         {
             float slowdownFactor = remainingDistance / slowdownDistance;
@@ -136,7 +136,6 @@ public class LuzzThrow : MonoBehaviour
         throwProgress = Mathf.Clamp01(throwProgress);
         Vector3 position = Vector3.Lerp(throwStartPosition, targetPosition, throwProgress);
 
-        
         float arc = Mathf.Sin(throwProgress * Mathf.PI) * arcHeight;                     // Leichte Flugkurve
 
         position += Vector3.up * arc;
@@ -146,15 +145,20 @@ public class LuzzThrow : MonoBehaviour
         {
             if (Physics.SphereCast(transform.position, collisionRadius, movement.normalized, out RaycastHit hit, movement.magnitude, worldLayer, QueryTriggerInteraction.Ignore))
             {
+                ChestTrigger chest = hit.collider.GetComponentInParent<ChestTrigger>();
+
+                if (chest)
+                    chest.HitByLuzz();
+
                 transform.position = hit.point + hit.normal * collisionRadius;
                 bounceStartPosition = transform.position;
                 bounceTarget = transform.position + hit.normal * bounceDistance;
                 state = LuzzState.Bouncing;
-                
+
                 return;
             }
         }
-        
+
         transform.position = position;
 
         if (throwProgress >= 1f)
