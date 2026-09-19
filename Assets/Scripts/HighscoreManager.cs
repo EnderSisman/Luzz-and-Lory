@@ -45,7 +45,6 @@ public class HighscoreManager : MonoBehaviour
     private const string EntryOrderKey = "LuzzAndLoryHighscoreEntryOrder";
 
     private HighscoreData highscoreData;
-
     private bool currentScoreSaved = false;
 
     private void Awake()
@@ -71,7 +70,6 @@ public class HighscoreManager : MonoBehaviour
         }
 
         SortHighscores();
-
         int lowestTopScore = highscoreData.entries[maxEntries - 1].score;
 
         return score >= lowestTopScore;
@@ -98,7 +96,6 @@ public class HighscoreManager : MonoBehaviour
             return;
 
         AddHighscore(playerName, currentScore);
-
         currentScoreSaved = true;
 
         if (endingScreenUI)
@@ -110,13 +107,9 @@ public class HighscoreManager : MonoBehaviour
     private void AddHighscore(string playerName, int score)
     {
         int newOrder = PlayerPrefs.GetInt(EntryOrderKey, 0) + 1;
-
         PlayerPrefs.SetInt(EntryOrderKey, newOrder);
-
         HighscoreEntry newEntry = new HighscoreEntry(playerName, score, newOrder);
-
         highscoreData.entries.Add(newEntry);
-
         SortHighscores();
 
         if (highscoreData.entries.Count > maxEntries)
@@ -148,7 +141,6 @@ public class HighscoreManager : MonoBehaviour
         if (PlayerPrefs.HasKey(HighscoreKey))
         {
             string json = PlayerPrefs.GetString(HighscoreKey);
-
             highscoreData = JsonUtility.FromJson<HighscoreData>(json);
         }
 

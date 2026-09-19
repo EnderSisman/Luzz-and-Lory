@@ -4649,10 +4649,10 @@ MonoBehaviour:
   fadeDuration: 0.3
   inputAppearDelay: 0.3
   inputFadeDuration: 0.5
-  maxGold: 3
-  maxRuby: 2
-  maxSaphire: 1
-  maxEmerald: 1
+  maxGold: 20
+  maxRuby: 5
+  maxSaphire: 5
+  maxEmerald: 3
   maxDiamond: 1
   goldCompleteColor: {r: 1, g: 0.75, b: 0, a: 1}
   rubyCompleteColor: {r: 1, g: 0.1, b: 0.1, a: 1}
@@ -5098,7 +5098,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: c4d17ea985fdb0e439a74ced6e7251c7, type: 3}
+  m_Resource: {fileID: 8300000, guid: 3ffdc332ac70d08468faff4ae1330220, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1

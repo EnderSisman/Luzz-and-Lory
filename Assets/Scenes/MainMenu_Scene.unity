@@ -149,7 +149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HighscoreManager
   nameInput: {fileID: 0}
-  saveButton: {fileID: 0}
+  endingScreenUI: {fileID: 0}
   nameTexts:
   - {fileID: 787389596}
   - {fileID: 1830718830}
@@ -205,7 +205,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!82 &127842043
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2874,7 +2874,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 6d4002cbafcb72a4d9780e09610c36cd, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b8b95bc3a0383554ea5184af49e6ef3e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

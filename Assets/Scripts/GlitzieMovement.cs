@@ -143,9 +143,7 @@ public class GlitzieMovement : MonoBehaviour
 
         if (tangent.sqrMagnitude > 0.001f)
         {
-            Quaternion targetRotation =
-                Quaternion.LookRotation(tangent);
-
+            Quaternion targetRotation = Quaternion.LookRotation(tangent);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
 
