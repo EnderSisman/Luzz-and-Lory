@@ -21,6 +21,15 @@ public class EndingScreenUI : MonoBehaviour
     [SerializeField] private CanvasGroup nameInputGroup;
     [SerializeField] private CanvasGroup saveButtonGroup;
 
+    [Header("Sounds")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip goldShineSound;
+    [SerializeField] private AudioClip rubyShineSound;
+    [SerializeField] private AudioClip saphireShineSound;
+    [SerializeField] private AudioClip emeraldShineSound;
+    [SerializeField] private AudioClip diamondShineSound;
+    [SerializeField] private AudioClip highscorePointsSound;
+
     [Header("Ending Buttons")]
     [SerializeField] private EndingButtonsSlide endingButtonsSlide;
 
@@ -34,8 +43,8 @@ public class EndingScreenUI : MonoBehaviour
     [SerializeField] private float inputFadeDuration = 0.5f;
 
     [Header("Maximum Glitzies")]
-    [SerializeField] private int maxGold = 20;
-    [SerializeField] private int maxRuby = 5;
+    [SerializeField] private int maxGold = 30;
+    [SerializeField] private int maxRuby = 15;
     [SerializeField] private int maxSaphire = 5;
     [SerializeField] private int maxEmerald = 3;
     [SerializeField] private int maxDiamond = 1;
@@ -78,22 +87,25 @@ public class EndingScreenUI : MonoBehaviour
 
     private IEnumerator ShowResults()
     {
-        yield return CountUp(goldText, GameResultData.GoldCount, maxGold, goldDefaultColor, goldCompleteColor);
+        yield return CountUp(goldText, GameResultData.GoldCount, maxGold, goldDefaultColor, goldCompleteColor, goldShineSound);
         yield return new WaitForSecondsRealtime(delayBetweenValues);
 
-        yield return CountUp(rubyText, GameResultData.RubyCount, maxRuby, rubyDefaultColor, rubyCompleteColor);
+        yield return CountUp(rubyText, GameResultData.RubyCount, maxRuby, rubyDefaultColor, rubyCompleteColor, rubyShineSound);
         yield return new WaitForSecondsRealtime(delayBetweenValues);
 
-        yield return CountUp(saphireText, GameResultData.SaphireCount, maxSaphire, saphireDefaultColor, saphireCompleteColor);
+        yield return CountUp(saphireText, GameResultData.SaphireCount, maxSaphire, saphireDefaultColor, saphireCompleteColor, saphireShineSound);
         yield return new WaitForSecondsRealtime(delayBetweenValues);
 
-        yield return CountUp(emeraldText, GameResultData.EmeraldCount, maxEmerald, emeraldDefaultColor, emeraldCompleteColor);
+        yield return CountUp(emeraldText, GameResultData.EmeraldCount, maxEmerald, emeraldDefaultColor, emeraldCompleteColor, emeraldShineSound);
         yield return new WaitForSecondsRealtime(delayBetweenValues);
 
-        yield return CountUp(diamondText, GameResultData.DiamondCount, maxDiamond, diamondDefaultColor, diamondCompleteColor);
+        yield return CountUp(diamondText, GameResultData.DiamondCount, maxDiamond, diamondDefaultColor, diamondCompleteColor, diamondShineSound);
         yield return new WaitForSecondsRealtime(delayBetweenValues);
 
         yield return CountUpScore(scoreText, GameResultData.Score);
+
+        PlaySound(highscorePointsSound);
+
         yield return new WaitForSecondsRealtime(inputAppearDelay);
 
         bool reachedTop10 = false;
@@ -167,7 +179,7 @@ public class EndingScreenUI : MonoBehaviour
         }
     }
 
-    private IEnumerator CountUp(TMP_Text text, int targetValue, int maxValue, Color defaultColor, Color completeColor)
+    private IEnumerator CountUp(TMP_Text text, int targetValue, int maxValue, Color defaultColor, Color completeColor, AudioClip completeSound)
     {
         if (!text)
             yield break;
@@ -181,6 +193,7 @@ public class EndingScreenUI : MonoBehaviour
             int currentValue = Mathf.RoundToInt(Mathf.Lerp(0, targetValue, progress));
 
             text.text = currentValue.ToString();
+
             float alpha = Mathf.Clamp01(timer / fadeDuration);
             Color currentColor = defaultColor;
 
@@ -196,6 +209,8 @@ public class EndingScreenUI : MonoBehaviour
         {
             completeColor.a = 1f;
             text.color = completeColor;
+
+            PlaySound(completeSound);
         }
         else
         {
@@ -234,17 +249,23 @@ public class EndingScreenUI : MonoBehaviour
         text.color = scoreDefaultColor;
     }
 
+    private void PlaySound(AudioClip clip)
+    {
+        if (!audioSource || !clip)
+            return;
+
+        audioSource.mute = AudioSettingsData.IsMuted;
+        audioSource.PlayOneShot(clip);
+    }
+
     private void PrepareText(TMP_Text text)
     {
         if (!text)
             return;
 
         text.text = "0";
-
         Color color = text.color;
-
         color.a = 0f;
-
         text.color = color;
     }
 

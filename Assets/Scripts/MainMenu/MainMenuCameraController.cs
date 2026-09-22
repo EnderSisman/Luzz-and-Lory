@@ -6,6 +6,10 @@ public class MainMenuCameraController : MonoBehaviour
     [Header("Camera")]
     [SerializeField] private Camera mainCamera;
 
+    [Header("Door Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip doorSwingSound;
+
     [Header("Views")]
     [SerializeField] private Transform bankView;
     [SerializeField] private Transform saloonView;
@@ -25,7 +29,7 @@ public class MainMenuCameraController : MonoBehaviour
     [SerializeField] private RectTransform infoSign;
     [SerializeField] private RectTransform backSign;
     [SerializeField] private RectTransform resetSign;
-    
+
     [Header("Sheriff Room")]
     [SerializeField] private CanvasGroup sheriffRoomUI;
     [SerializeField] private RectTransform sheriffBackSign;
@@ -63,7 +67,7 @@ public class MainMenuCameraController : MonoBehaviour
 
     [Header("Info Sign")]
     [SerializeField] private float infoSignOffsetY = -600f;
-    
+
     [Header("Bank UI Fade")]
     [SerializeField] private float bankUIFadeDelay = 0.35f;
     [SerializeField] private float bankUIFadeDuration = 0.5f;
@@ -103,6 +107,8 @@ public class MainMenuCameraController : MonoBehaviour
     private Vector3 sheriffSoundButtonTargetScale;
 
     private bool isMoving;
+
+    public bool IsMoving => isMoving;
 
     private void Awake()
     {
@@ -226,6 +232,7 @@ public class MainMenuCameraController : MonoBehaviour
         if (isMoving)
             return;
 
+        PlayDoorSound();
         StartCoroutine(LeaveBankRoom());
     }
 
@@ -242,6 +249,7 @@ public class MainMenuCameraController : MonoBehaviour
         if (isMoving)
             return;
 
+        PlayDoorSound();
         StartCoroutine(LeaveSheriffRoom());
     }
 
@@ -973,5 +981,14 @@ public class MainMenuCameraController : MonoBehaviour
         bool visible = endAlpha > 0.5f;
         group.interactable = visible;
         group.blocksRaycasts = visible;
+    }
+
+    private void PlayDoorSound()
+    {
+        if (!audioSource || !doorSwingSound)
+            return;
+
+        audioSource.mute = AudioSettingsData.IsMuted;
+        audioSource.PlayOneShot(doorSwingSound);
     }
 }

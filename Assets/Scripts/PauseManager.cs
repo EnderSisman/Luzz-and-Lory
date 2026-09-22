@@ -13,6 +13,11 @@ public class PauseManager : MonoBehaviour
     [SerializeField] private AudioSource levelMusic;
     [SerializeField] private AudioSource levelSFX;
 
+    [Header("Pause Sounds")]
+    [SerializeField] private AudioSource pauseAudioSource;
+    [SerializeField] private AudioClip pauseOpenSound;
+    [SerializeField] private AudioClip pauseCloseSound;
+
     [Header("Audio Button")]
     [SerializeField] private Image audioButtonImage;
     [SerializeField] private Sprite iconLaut;
@@ -43,6 +48,9 @@ public class PauseManager : MonoBehaviour
 
         if (levelSFX)
             levelSFX.mute = isMuted;
+
+        if (pauseAudioSource)
+            pauseAudioSource.mute = isMuted;
 
         HideCursor();
         UpdateAudioIcon();
@@ -89,6 +97,8 @@ public class PauseManager : MonoBehaviour
 
         isPaused = true;
 
+        PlayPauseSound(pauseOpenSound);
+
         Time.timeScale = 0f;
 
         if (levelMusic)
@@ -120,6 +130,8 @@ public class PauseManager : MonoBehaviour
         isPaused = false;
 
         Time.timeScale = 1f;
+
+        PlayPauseSound(pauseCloseSound);
 
         if (levelMusic)
         {
@@ -160,6 +172,9 @@ public class PauseManager : MonoBehaviour
         if (levelSFX)
             levelSFX.mute = isMuted;
 
+        if (pauseAudioSource)
+            pauseAudioSource.mute = isMuted;
+
         UpdateAudioIcon();
     }
 
@@ -169,6 +184,15 @@ public class PauseManager : MonoBehaviour
             return;
 
         audioButtonImage.sprite = AudioSettingsData.IsMuted ? iconLeise : iconLaut;
+    }
+
+    private void PlayPauseSound(AudioClip clip)
+    {
+        if (!pauseAudioSource || !clip)
+            return;
+
+        pauseAudioSource.mute = AudioSettingsData.IsMuted;
+        pauseAudioSource.PlayOneShot(clip);
     }
 
     public void RestartLevel()
@@ -190,6 +214,9 @@ public class PauseManager : MonoBehaviour
 
         if (levelSFX)
             levelSFX.Stop();
+
+        if (pauseAudioSource)
+            pauseAudioSource.Stop();
 
         if (ScreenFader.Instance)
             ScreenFader.Instance.FadeToScene("Level01_Scene");
@@ -214,6 +241,9 @@ public class PauseManager : MonoBehaviour
 
         if (levelSFX)
             levelSFX.Stop();
+
+        if (pauseAudioSource)
+            pauseAudioSource.Stop();
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
