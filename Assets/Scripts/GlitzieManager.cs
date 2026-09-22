@@ -13,8 +13,8 @@ public class GlitzieManager : MonoBehaviour
     [SerializeField] private TMP_Text diamantText;
 
     [Header("Maximum Glitzies")]
-    [SerializeField] private int maxGold = 20;
-    [SerializeField] private int maxRubin = 5;
+    [SerializeField] private int maxGold = 30;
+    [SerializeField] private int maxRubin = 15;
     [SerializeField] private int maxSaphir = 5;
     [SerializeField] private int maxSmaragd = 3;
     [SerializeField] private int maxDiamant = 1;

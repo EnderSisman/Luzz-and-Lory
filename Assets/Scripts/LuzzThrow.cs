@@ -9,6 +9,18 @@ public class LuzzThrow : MonoBehaviour
     [SerializeField] private RectTransform crosshair;
     [SerializeField] private Transform catchPoint;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip throwSound;
+    [SerializeField] private AudioClip catchSound;
+    [SerializeField] private AudioClip environmentHitSound;
+    [SerializeField] private AudioClip chestHitSound;
+    [SerializeField] private AudioClip goldShineSound;
+    [SerializeField] private AudioClip rubyShineSound;
+    [SerializeField] private AudioClip saphireShineSound;
+    [SerializeField] private AudioClip emeraldShineSound;
+    [SerializeField] private AudioClip diamondShineSound;
+
     [Header("Throw")]
     [SerializeField] private float throwDistance = 12f;
     [SerializeField] private float throwSpeed = 18f;
@@ -62,6 +74,12 @@ public class LuzzThrow : MonoBehaviour
 
     private Glitzie capturedGlitzie;
 
+    private void Start()
+    {
+        if (audioSource)
+            audioSource.mute = AudioSettingsData.IsMuted;
+    }
+
     private void Update()
     {
         switch (state)
@@ -111,6 +129,8 @@ public class LuzzThrow : MonoBehaviour
 
         transform.SetParent(null, true);
 
+        PlaySound(throwSound);
+
         state = LuzzState.Flying;
     }
 
@@ -148,7 +168,14 @@ public class LuzzThrow : MonoBehaviour
                 ChestTrigger chest = hit.collider.GetComponentInParent<ChestTrigger>();
 
                 if (chest)
+                {
                     chest.HitByLuzz();
+                    PlaySound(chestHitSound);
+                }
+                else
+                {
+                    PlaySound(environmentHitSound);
+                }
 
                 transform.position = hit.point + hit.normal * collisionRadius;
                 bounceStartPosition = transform.position;
@@ -221,6 +248,29 @@ public class LuzzThrow : MonoBehaviour
 
             if (capturedGlitzie)                        // Gefangenen Glitzie abgeben
             {
+                switch (capturedGlitzie.Type)
+                {
+                    case Glitzie.GlitzieType.Gold:
+                        PlaySound(goldShineSound);
+                        break;
+
+                    case Glitzie.GlitzieType.Ruby:
+                        PlaySound(rubyShineSound);
+                        break;
+
+                    case Glitzie.GlitzieType.Saphire:
+                        PlaySound(saphireShineSound);
+                        break;
+
+                    case Glitzie.GlitzieType.Emerald:
+                        PlaySound(emeraldShineSound);
+                        break;
+
+                    case Glitzie.GlitzieType.Diamond:
+                        PlaySound(diamondShineSound);
+                        break;
+                }
+
                 capturedGlitzie.Deliver();
                 capturedGlitzie = null;
             }
@@ -232,6 +282,15 @@ public class LuzzThrow : MonoBehaviour
     private void SpinLuzz()
     {
         transform.Rotate(spinAxis, spinSpeed * Time.deltaTime, Space.Self);
+    }
+
+    private void PlaySound(AudioClip clip)
+    {
+        if (!audioSource || !clip)
+            return;
+
+        audioSource.mute = AudioSettingsData.IsMuted;
+        audioSource.PlayOneShot(clip);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -249,6 +308,8 @@ public class LuzzThrow : MonoBehaviour
 
         capturedGlitzie = glitzie;
         capturedGlitzie.Capture(catchPoint);
+
+        PlaySound(catchSound);
 
         Debug.Log("Luzz hat " + capturedGlitzie.Type + " gefangen!");
     }

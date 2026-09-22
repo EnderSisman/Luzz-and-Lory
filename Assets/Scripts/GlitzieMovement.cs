@@ -12,6 +12,9 @@ public class GlitzieMovement : MonoBehaviour
     [Header("Movement Type")]
     [SerializeField] private MovementType movementType = MovementType.Wander;
 
+    [Header("Animation")]
+    [SerializeField] private Animator animator;
+
     [Header("General")]
     [SerializeField] private float moveSpeed = 1.5f;
     [SerializeField] private float rotationSpeed = 6f;
@@ -50,6 +53,9 @@ public class GlitzieMovement : MonoBehaviour
     private float jumpPauseTimer;
     private bool isJumping;
 
+    // Animation
+    private string currentAnimation;
+
     private void Start()
     {
         startPosition = transform.position;
@@ -58,14 +64,17 @@ public class GlitzieMovement : MonoBehaviour
         {
             case MovementType.Wander:
                 ChooseNewWanderTarget();
+                PlayAnimation("Walk");
                 break;
 
             case MovementType.Circle:
                 circleAngle = 0f;
+                PlayAnimation("Walk");
                 break;
 
             case MovementType.Jump:
                 PrepareNextJump();
+                PlayAnimation("Idle");
                 break;
         }
     }
@@ -102,6 +111,7 @@ public class GlitzieMovement : MonoBehaviour
             {
                 isWaiting = false;
                 ChooseNewWanderTarget();
+                PlayAnimation("Walk");
             }
 
             return;
@@ -118,6 +128,8 @@ public class GlitzieMovement : MonoBehaviour
         {
             isWaiting = true;
             waitTimer = Random.Range(minPauseTime, maxPauseTime);
+
+            PlayAnimation("Idle");
         }
     }
 
@@ -148,6 +160,8 @@ public class GlitzieMovement : MonoBehaviour
         }
 
         transform.position = newPosition;
+
+        PlayAnimation("Walk");
     }
 
     // --------------------------------------------------
@@ -174,6 +188,7 @@ public class GlitzieMovement : MonoBehaviour
 
         float height = Mathf.Sin(progress * Mathf.PI) * jumpHeight;
         position.y += height;
+
         Vector3 direction = jumpTarget - jumpStart;
         direction.y = 0f;
 
@@ -198,14 +213,19 @@ public class GlitzieMovement : MonoBehaviour
         Vector2 randomPoint = Random.insideUnitCircle * jumpRadius;
 
         jumpTarget = new Vector3(startPosition.x + randomPoint.x, startPosition.y, startPosition.z + randomPoint.y);
+
         jumpTimer = 0f;
         isJumping = true;
+
+        PlayAnimation("Jump");
     }
 
     private void PrepareNextJump()
     {
         jumpPauseTimer = jumpPause;
         isJumping = false;
+
+        PlayAnimation("Idle");
     }
 
     // --------------------------------------------------
@@ -222,5 +242,21 @@ public class GlitzieMovement : MonoBehaviour
         Quaternion targetRotation = Quaternion.LookRotation(direction);
 
         transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+    }
+
+    // --------------------------------------------------
+    // ANIMATION
+    // --------------------------------------------------
+
+    private void PlayAnimation(string animationName)
+    {
+        if (!animator)
+            return;
+
+        if (currentAnimation == animationName)
+            return;
+
+        currentAnimation = animationName;
+        animator.Play(animationName, 0, 0f);
     }
 }
