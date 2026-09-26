@@ -248,7 +248,7 @@ GameObject:
   - component: {fileID: 8588641966001726179}
   - component: {fileID: 8214435289506550478}
   m_Layer: 3
-  m_Name: Saphire_Glitzie (1)
+  m_Name: Saphire_Glitzie
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

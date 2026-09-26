@@ -12043,7 +12043,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8962583294721824590}
   m_Layer: 3
-  m_Name: City Buildings 2
+  m_Name: City_Buildings 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
