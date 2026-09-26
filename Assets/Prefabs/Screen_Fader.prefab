@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7068281611256599679}
   - component: {fileID: 5421205670739165378}
   m_Layer: 0
-  m_Name: ScreenFader
+  m_Name: Screen_Fader
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
